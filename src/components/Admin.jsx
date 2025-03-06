@@ -23,12 +23,14 @@ const Admin = () => {
     barPdf: false,
   });
   const navigate = useNavigate();
+  const [fetching, setFetching] = useState(false);
 
   useEffect(() => {
     const auth = localStorage.getItem("admin_auth");
     if (!auth) {
       return;
     }
+    setFetching(true);
     checkPdfAvailability().then((data) => {
       setPdfAvailability(data);
       if (data.foodPdf) {
@@ -37,6 +39,7 @@ const Admin = () => {
       if (data.barPdf) {
         setCurrentBarPdf({ filename: "bar-menu.pdf" });
       }
+      setFetching(false);
     });
   }, []);
 
@@ -53,11 +56,9 @@ const Admin = () => {
       localStorage.setItem("admin_auth", "true");
       setMessage({ text: "Login successful!", type: "success" });
 
-      // Check PDF availability after successful login
       const availabilityData = await checkPdfAvailability();
       setPdfAvailability(availabilityData);
 
-      // Update current PDF states based on availability
       if (availabilityData.foodPdf) {
         setCurrentFoodPdf({ filename: "food-menu.pdf" });
       }
@@ -85,10 +86,9 @@ const Admin = () => {
       return;
     }
 
-    // Check file size (limit to 10MB)
-    if (file.size > 10 * 1024 * 1024) {
+    if (file.size > 25 * 1024 * 1024) {
       setMessage({
-        text: "File is too large. Maximum size is 10MB.",
+        text: "File is too large. Maximum size is 25MB.",
         type: "error",
       });
       return;
@@ -118,8 +118,7 @@ const Admin = () => {
     setMessage({ text: `Uploading ${type} menu...`, type: "info" });
 
     try {
-      // Use the new uploadPdf function
-      const response = await uploadPdf(selectedFile, type);
+      await uploadPdf(selectedFile, type);
 
       if (type === "food") {
         setFoodPdf(null);
@@ -151,7 +150,6 @@ const Admin = () => {
   };
 
   const handlePdfDownload = async (type) => {
-    // Check if PDF is available before downloading
     const isPdfAvailable =
       type === "food" ? pdfAvailability.foodPdf : pdfAvailability.barPdf;
 
@@ -167,7 +165,6 @@ const Admin = () => {
 
     try {
       setDownloading((prev) => ({ ...prev, [type]: true }));
-      // Use the new downloadPdf function
       await downloadPdf(type);
     } catch (error) {
       setMessage({
@@ -180,7 +177,6 @@ const Admin = () => {
   };
 
   const PdfCard = ({ title, currentPdf, pdfName, type }) => {
-    // Check if PDF is available for this card type
     const isPdfAvailable =
       type === "food" ? pdfAvailability.foodPdf : pdfAvailability.barPdf;
 
@@ -205,7 +201,6 @@ const Admin = () => {
         </h2>
 
         <div className="flex flex-col space-y-8">
-          {/* Current Menu Section */}
           <div className="bg-gray-50 p-6 rounded-xl border border-gray-200 hover:border-indigo-200 transition-colors">
             <h3 className="font-semibold text-gray-800 mb-4 flex items-center text-lg">
               <svg
@@ -225,7 +220,7 @@ const Admin = () => {
               Current Menu
             </h3>
 
-            {isPdfAvailable ? (
+            {isPdfAvailable  ? (
               <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
                 <div className="flex-1 truncate text-sm text-gray-700 bg-white p-3 rounded-lg border border-gray-200 shadow-sm">
                   <div className="flex items-center">
@@ -317,14 +312,13 @@ const Admin = () => {
                     ></path>
                   </svg>
                   <p className="mt-2 text-sm text-gray-500">
-                    No current menu available
+                    {fetching ? "Fetching PDF..." : "No current menu available"}
                   </p>
                 </div>
               </div>
             )}
           </div>
 
-          {/* Upload New Menu Section */}
           <div className="border-t pt-6">
             <h3 className="font-semibold text-gray-800 mb-4 flex items-center text-lg">
               <svg
@@ -412,7 +406,7 @@ const Admin = () => {
                 </div>
 
                 <div className="text-xs text-gray-500 italic px-1">
-                  Only PDF files are accepted. Maximum size: 10MB.
+                  Only PDF files are accepted. Maximum size: 25MB.
                 </div>
               </div>
             </div>
@@ -478,27 +472,17 @@ const Admin = () => {
 
   if (!localStorage.getItem("admin_auth")) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-50 to-blue-50 p-6">
+      <div className="h-dvh flex items-center justify-center bg-[#f8f5ed] p-6">
         <div className="bg-white p-8 rounded-xl shadow-xl w-full max-w-md">
-          <div className="text-center mb-6">
-            <svg
-              className="w-16 h-16 mx-auto text-green-600"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
-              ></path>
-            </svg>
-            <h1 className="text-3xl font-bold text-gray-800 mt-3">
+          <div className="text-center mb-6 flex flex-col items-center ">
+            <img
+              src="/png/M-logo-11Dark.png"
+              alt="Logo"
+              className="w-12 h-12 self-center"
+            />
+            <h1 className="text-xl font-medium text-gray-800 mt-3">
               Admin Portal
             </h1>
-            <p className="text-gray-600 mt-1">Access menu management system</p>
           </div>
 
           {message.text && (
@@ -567,7 +551,7 @@ const Admin = () => {
             <div>
               <label
                 htmlFor="password"
-                className="block text-sm font-medium text-gray-700 mb-1"
+                className="block text-sm font-medium text-gray-700 mb-2"
               >
                 Password
               </label>
@@ -593,7 +577,7 @@ const Admin = () => {
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors"
+                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg transition-colors"
                   placeholder="Enter admin password"
                   required
                 />
@@ -601,7 +585,7 @@ const Admin = () => {
             </div>
             <button
               type="submit"
-              className="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-3 px-4 rounded-lg transition-colors shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50 flex items-center justify-center"
+              className="w-full bg-[#324c22] hover:bg-gray-900 text-white font-medium py-3 px-4 rounded-lg transition-colors shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-[#324c22] flex items-center justify-center"
             >
               <svg
                 className="w-5 h-5 mr-2"
@@ -629,7 +613,6 @@ const Admin = () => {
     <div className="min-h-screen bg-[#f8f5ed]">
       <div className="container mx-auto px-4 py-8">
         <div className="pb-6 md:pb-10">
-
           <div className="flex flex-row justify-between items-center ">
             <div className="flex items-center mb-0">
               <img
@@ -668,7 +651,6 @@ const Admin = () => {
               Logout
             </button>
           </div>
-
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           <PdfCard
