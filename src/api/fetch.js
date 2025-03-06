@@ -9,89 +9,58 @@ export const authenticateAdmin = async (password) => {
   }
 };
 
-export const getPDF1 = async () => {
-  try {
-    const response = await axiosInstance.get("/api/menu/food/info");
-    return response.data;
-  } catch (error) {
-    if (error.response && error.response.status === 404) {
-      return { url: "", filename: "" };
-    }
-    throw new Error("Failed to fetch food menu", error);
-  }
-};
+export const uploadPdf = async (file, type) => {
+  console.log(file, type, "file and type");
 
-export const getPDF2 = async () => {
   try {
-    const response = await axiosInstance.get("/api/menu/bar/info");
-    return response.data;
-  } catch (error) {
-    if (error.response && error.response.status === 404) {
-      return { url: "", filename: "" };
+    if (!(file instanceof File)) {
+      throw new Error("Invalid file provided.");
     }
-    throw new Error("Failed to fetch bar menu", error);
-  }
-};
 
-export const updatePDF1 = async (formData) => {
-  try {
-    const response = await axiosInstance.post("/api/menu/food", formData, {
+    const formData = new FormData();
+    const fieldName = type === "food" ? "foodPdf" : "barPdf";
+    formData.append(fieldName, file, file.name);
+
+    const response = await axiosInstance.post(`/api/menu/${type}`, formData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },
     });
+    console.log(response.data);
     return response.data;
   } catch (error) {
-    throw new Error("Failed to update food menu", error);
+    console.error("Error uploading PDF:", error);
+    throw error;
   }
 };
 
-export const updatePDF2 = async (formData) => {
+export const downloadPdf = async (type) => {
   try {
-    const response = await axiosInstance.post("/api/menu/bar", formData, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-    });
-    return response.data;
-  } catch (error) {
-    throw new Error("Failed to update bar menu", error);
-  }
-};
-
-export const downloadPDF1 = async () => {
-  try {
-    const response = await axiosInstance.get("/api/menu/food/download", {
-      responseType: "blob",
-    });
-    const url = window.URL.createObjectURL(new Blob([response.data]));
-    const link = document.createElement("a");
-    link.href = url;
-    link.setAttribute("download", "food_menu.pdf");
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
-    window.URL.revokeObjectURL(url);
-  } catch (error) {
-    throw new Error("Failed to download food menu", error);
-  }
-};
-
-export const downloadPDF2 = async () => {
-  try {
-    const response = await axiosInstance.get("/api/menu/bar/download", {
+    const response = await axiosInstance.get(`/api/menu/${type}/download`, {
       responseType: "blob",
     });
 
     const url = window.URL.createObjectURL(new Blob([response.data]));
-    const link = document.createElement("a");
-    link.href = url;
-    link.setAttribute("download", "bar_menu.pdf");
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${type}_menu.pdf`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
     window.URL.revokeObjectURL(url);
   } catch (error) {
-    throw new Error("Failed to download bar menu", error);
+    console.error("Error downloading PDF:", error);
+    throw error;
+  }
+};
+
+export const checkPdfAvailability = async () => {
+  try {
+    const response = await axiosInstance.get("/api/menu/check-pdfs");
+    console.log("PDF Availability:", response.data);
+    return response.data;
+  } catch (error) {
+    console.error("Error checking PDF availability:", error);
+    return { foodPdf: false, barPdf: false };
   }
 };

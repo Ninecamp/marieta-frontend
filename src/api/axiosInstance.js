@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const axiosInstance = axios.create({
-  baseURL: "https://marieta-express-backend-1.onrender.com",
+  baseURL: "http://localhost:5001", // Local development server
   headers: {
     "Content-Type": "application/json",
   },
