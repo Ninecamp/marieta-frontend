@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Menu, ChevronDown } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
-import { downloadPdf } from "../api/fetch";
+// import { downloadPdf } from "../api/fetch";
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -13,19 +13,15 @@ const Navbar = () => {
   const menuRef = useRef(null);
   const location = useLocation();
 
-  const handlePdfDownload = async (type) => {
-    const isPdfAvailable = type === "food" ? "foodPdf" : "barPdf";
-
-    if (!isPdfAvailable) {
-      return;
-    }
-
-    try {
-      await downloadPdf(type);
-    } catch (error) {
-      console.error("Error downloading PDF:", error);
-    }
-  };
+  // const handlePdfOpen = async (type) => {
+  //   try {
+  //     const pdfBlob = await downloadPdf(type); // This should return a Blob response
+  //     const pdfUrl = URL.createObjectURL(pdfBlob);
+  //     window.open(pdfUrl, "_blank");
+  //   } catch (error) {
+  //     console.error("Error opening PDF:", error);
+  //   }
+  // };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -165,18 +161,18 @@ const Navbar = () => {
                   onMouseEnter={() => setShowDialog(true)}
                   onMouseLeave={() => setShowDialog(false)}
                 >
-                  <button
-                    onClick={() => handlePdfDownload("food")}
-                    className="font-montserrat fontWeight-large text-left hover:text-[#d5d5d5] transition-colors"
+                  <Link
+                    to={`/pdf/food`}
+                    className="block text-white hover:text-gray-50 transition-colors text-left"
                   >
                     Food
-                  </button>
-                  <button
-                    onClick={() => handlePdfDownload("bar")}
-                    className="font-montserrat fontWeight-large text-left hover:text-[#d5d5d5] transition-colors"
+                  </Link>
+                  <Link
+                    to={`/pdf/bar`}
+                    className="block text-white hover:text-gray-50 transition-colors text-left"
                   >
                     Bar
-                  </button>
+                  </Link>
                 </div>
               )}
             </div>
@@ -228,18 +224,18 @@ const Navbar = () => {
 
             {showMobileSubmenu && (
               <div className="pl-4 mt-2 space-y-2">
-                <button
-                  onClick={() => handlePdfDownload("food")}
+                <Link
+                  to={`/pdf/food`}
                   className="block text-[#324c22] hover:text-black transition-colors text-left"
                 >
                   Food
-                </button>
-                <button
-                  onClick={() => handlePdfDownload("bar")}
+                </Link>
+                <Link
+                  to={`/pdf/bar`}
                   className="block text-[#324c22] hover:text-black transition-colors text-left"
                 >
                   Bar
-                </button>
+                </Link>
               </div>
             )}
           </div>

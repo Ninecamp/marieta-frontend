@@ -9,6 +9,7 @@ import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import Contact from "./components/Contact";
 import Admin from "./components/Admin"; 
+import PdfViewer from "./PdfViewer";
 
 const ScrollToTop = () => {
   const { pathname } = useLocation();
@@ -33,18 +34,20 @@ const Home = () => {
 
 function App() {
   const location = useLocation();
-  const isAdminRoute = location.pathname === "/admin";
+  
+  const hideHeaderFooter = location.pathname.startsWith("/pdf/") || location.pathname === "/admin";
 
   return (
     <>
-      {!isAdminRoute && <Navbar />}
+      {!hideHeaderFooter && <Navbar />}
       <ScrollToTop />
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/contact" element={<Contact />} />
+        <Route path="/pdf/:type" element={<PdfViewer />} />
         <Route path="/admin" element={<Admin />} />
       </Routes>
-      {!isAdminRoute && <Footer />}
+      {!hideHeaderFooter && <Footer />}
     </>
   );
 }
