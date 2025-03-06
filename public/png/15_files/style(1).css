@@ -1,0 +1,64 @@
+/*
+Theme Name: Savory
+Theme URI: https://savory.qodeinteractive.com
+Description: A Beautiful Restaurant WordPress Theme
+Author: Elated Themes
+Author URI: https://qodeinteractive.com
+Version: 2.3
+Text Domain: savory
+License: GNU General Public License v2 or later
+License URI: http://www.gnu.org/licenses/gpl-2.0.html
+Tags: one-column, two-columns, three-columns, four-columns, left-sidebar, right-sidebar, full-width-template, custom-menu, featured-images, flexible-header, post-formats, sticky-post, translation-ready
+
+CSS changes can be made in files in the /css/ folder. This is a placeholder file required by WordPress, so do not delete it.
+*/
+.eltd-image-gallery .owl-controls .owl-nav .owl-next, .eltd-image-gallery .owl-controls .owl-nav .owl-prev {
+		opacity:1 !important;
+	}
+.owl-prev , .owl-next{
+    display: block !important;
+}
+@media only screen and (max-width: 600px){
+      .page-template-landing-page .eltd-section-title-outer-holder .eltd-section-title-title-holder .eltd-section-title{
+	   font-size: 55px !important;
+      }
+	footer .eltd-footer-top:not(.eltd-footer-top-full) .eltd-container-inner {
+    padding: 0px !important;
+}
+#rightSlide_Home {
+    left: 110px !important;
+}
+div#food_menus, div#food_menus .eltd-separator-holder.clearfix.eltd-separator-left {
+    text-align: center !important;
+}
+div#food_menus .wpb_text_column.wpb_content_element .wpb_wrapper p {
+    text-align: center !important;
+}
+	.eltd-image-gallery .owl-controls .owl-nav .owl-next, .eltd-image-gallery .owl-controls .owl-nav .owl-prev {
+		opacity:1 !important;
+	}
+
+/**----------------*/
+#logo_slider_home {
+    left: -80px !important;
+    top: 250px !important;
+}
+rs-layer#slider-9-slide-19-layer-2 {
+    width: 73% !important;
+    height: auto !important;
+}
+	#logo_slider_home img.tp-rs-img.rs-lazyload {
+    width: 158% !important;
+}
+	
+}
+
+rs-layer-wrap#logo_slider_home {
+/*     left: 300px !important; */
+/*     top: 209px !important; */
+}
+
+rs-layer#slider-9-slide-19-layer-2 {
+/*     width: 50% !important; */
+	height: auto !important;
+}

@@ -1,0 +1,1336 @@
+<!DOCTYPE html>
+<!-- saved from url=(0019)https://marieta.in/ -->
+<html lang="en-US" class=" js flexbox flexboxlegacy canvas canvastext no-touch hashchange history draganddrop rgba hsla multiplebgs backgroundsize borderimage borderradius boxshadow textshadow opacity cssanimations csscolumns cssgradients cssreflections csstransforms csstransforms3d csstransitions fontface generatedcontent video audio svg inlinesvg svgclippaths js_active  vc_desktop  vc_transform  vc_transform "><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    	
+        
+        <link rel="profile" href="http://gmpg.org/xfn/11">
+        
+                <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+        
+	<title>Marieta – Marieta</title>
+<script src="./15_files/iframe_api"></script><script type="text/javascript" id="www-widgetapi-script" src="./15_files/www-widgetapi.js.download" async=""></script><script type="application/javascript">var eltdCoreAjaxUrl = "https://marieta.in/wp-admin/admin-ajax.php"</script><script type="application/javascript">var ElatedAjaxUrl = "https://marieta.in/wp-admin/admin-ajax.php"</script><meta name="robots" content="max-image-preview:large">
+<link rel="dns-prefetch" href="https://fonts.googleapis.com/">
+<link rel="alternate" type="application/rss+xml" title="Marieta » Feed" href="https://marieta.in/feed/">
+<link rel="alternate" type="application/rss+xml" title="Marieta » Comments Feed" href="https://marieta.in/comments/feed/">
+<script type="text/javascript">
+/* <![CDATA[ */
+window._wpemojiSettings = {"baseUrl":"https:\/\/s.w.org\/images\/core\/emoji\/15.0.3\/72x72\/","ext":".png","svgUrl":"https:\/\/s.w.org\/images\/core\/emoji\/15.0.3\/svg\/","svgExt":".svg","source":{"wpemoji":"https:\/\/marieta.in\/wp-includes\/js\/wp-emoji.js?ver=6.5.3","twemoji":"https:\/\/marieta.in\/wp-includes\/js\/twemoji.js?ver=6.5.3"}};
+/**
+ * @output wp-includes/js/wp-emoji-loader.js
+ */
+
+/**
+ * Emoji Settings as exported in PHP via _print_emoji_detection_script().
+ * @typedef WPEmojiSettings
+ * @type {object}
+ * @property {?object} source
+ * @property {?string} source.concatemoji
+ * @property {?string} source.twemoji
+ * @property {?string} source.wpemoji
+ * @property {?boolean} DOMReady
+ * @property {?Function} readyCallback
+ */
+
+/**
+ * Support tests.
+ * @typedef SupportTests
+ * @type {object}
+ * @property {?boolean} flag
+ * @property {?boolean} emoji
+ */
+
+/**
+ * IIFE to detect emoji support and load Twemoji if needed.
+ *
+ * @param {Window} window
+ * @param {Document} document
+ * @param {WPEmojiSettings} settings
+ */
+( function wpEmojiLoader( window, document, settings ) {
+	if ( typeof Promise === 'undefined' ) {
+		return;
+	}
+
+	var sessionStorageKey = 'wpEmojiSettingsSupports';
+	var tests = [ 'flag', 'emoji' ];
+
+	/**
+	 * Checks whether the browser supports offloading to a Worker.
+	 *
+	 * @since 6.3.0
+	 *
+	 * @private
+	 *
+	 * @returns {boolean}
+	 */
+	function supportsWorkerOffloading() {
+		return (
+			typeof Worker !== 'undefined' &&
+			typeof OffscreenCanvas !== 'undefined' &&
+			typeof URL !== 'undefined' &&
+			URL.createObjectURL &&
+			typeof Blob !== 'undefined'
+		);
+	}
+
+	/**
+	 * @typedef SessionSupportTests
+	 * @type {object}
+	 * @property {number} timestamp
+	 * @property {SupportTests} supportTests
+	 */
+
+	/**
+	 * Get support tests from session.
+	 *
+	 * @since 6.3.0
+	 *
+	 * @private
+	 *
+	 * @returns {?SupportTests} Support tests, or null if not set or older than 1 week.
+	 */
+	function getSessionSupportTests() {
+		try {
+			/** @type {SessionSupportTests} */
+			var item = JSON.parse(
+				sessionStorage.getItem( sessionStorageKey )
+			);
+			if (
+				typeof item === 'object' &&
+				typeof item.timestamp === 'number' &&
+				new Date().valueOf() < item.timestamp + 604800 && // Note: Number is a week in seconds.
+				typeof item.supportTests === 'object'
+			) {
+				return item.supportTests;
+			}
+		} catch ( e ) {}
+		return null;
+	}
+
+	/**
+	 * Persist the supports in session storage.
+	 *
+	 * @since 6.3.0
+	 *
+	 * @private
+	 *
+	 * @param {SupportTests} supportTests Support tests.
+	 */
+	function setSessionSupportTests( supportTests ) {
+		try {
+			/** @type {SessionSupportTests} */
+			var item = {
+				supportTests: supportTests,
+				timestamp: new Date().valueOf()
+			};
+
+			sessionStorage.setItem(
+				sessionStorageKey,
+				JSON.stringify( item )
+			);
+		} catch ( e ) {}
+	}
+
+	/**
+	 * Checks if two sets of Emoji characters render the same visually.
+	 *
+	 * This function may be serialized to run in a Worker. Therefore, it cannot refer to variables from the containing
+	 * scope. Everything must be passed by parameters.
+	 *
+	 * @since 4.9.0
+	 *
+	 * @private
+	 *
+	 * @param {CanvasRenderingContext2D} context 2D Context.
+	 * @param {string} set1 Set of Emoji to test.
+	 * @param {string} set2 Set of Emoji to test.
+	 *
+	 * @return {boolean} True if the two sets render the same.
+	 */
+	function emojiSetsRenderIdentically( context, set1, set2 ) {
+		// Cleanup from previous test.
+		context.clearRect( 0, 0, context.canvas.width, context.canvas.height );
+		context.fillText( set1, 0, 0 );
+		var rendered1 = new Uint32Array(
+			context.getImageData(
+				0,
+				0,
+				context.canvas.width,
+				context.canvas.height
+			).data
+		);
+
+		// Cleanup from previous test.
+		context.clearRect( 0, 0, context.canvas.width, context.canvas.height );
+		context.fillText( set2, 0, 0 );
+		var rendered2 = new Uint32Array(
+			context.getImageData(
+				0,
+				0,
+				context.canvas.width,
+				context.canvas.height
+			).data
+		);
+
+		return rendered1.every( function ( rendered2Data, index ) {
+			return rendered2Data === rendered2[ index ];
+		} );
+	}
+
+	/**
+	 * Determines if the browser properly renders Emoji that Twemoji can supplement.
+	 *
+	 * This function may be serialized to run in a Worker. Therefore, it cannot refer to variables from the containing
+	 * scope. Everything must be passed by parameters.
+	 *
+	 * @since 4.2.0
+	 *
+	 * @private
+	 *
+	 * @param {CanvasRenderingContext2D} context 2D Context.
+	 * @param {string} type Whether to test for support of "flag" or "emoji".
+	 * @param {Function} emojiSetsRenderIdentically Reference to emojiSetsRenderIdentically function, needed due to minification.
+	 *
+	 * @return {boolean} True if the browser can render emoji, false if it cannot.
+	 */
+	function browserSupportsEmoji( context, type, emojiSetsRenderIdentically ) {
+		var isIdentical;
+
+		switch ( type ) {
+			case 'flag':
+				/*
+				 * Test for Transgender flag compatibility. Added in Unicode 13.
+				 *
+				 * To test for support, we try to render it, and compare the rendering to how it would look if
+				 * the browser doesn't render it correctly (white flag emoji + transgender symbol).
+				 */
+				isIdentical = emojiSetsRenderIdentically(
+					context,
+					'\uD83C\uDFF3\uFE0F\u200D\u26A7\uFE0F', // as a zero-width joiner sequence
+					'\uD83C\uDFF3\uFE0F\u200B\u26A7\uFE0F' // separated by a zero-width space
+				);
+
+				if ( isIdentical ) {
+					return false;
+				}
+
+				/*
+				 * Test for UN flag compatibility. This is the least supported of the letter locale flags,
+				 * so gives us an easy test for full support.
+				 *
+				 * To test for support, we try to render it, and compare the rendering to how it would look if
+				 * the browser doesn't render it correctly ([U] + [N]).
+				 */
+				isIdentical = emojiSetsRenderIdentically(
+					context,
+					'\uD83C\uDDFA\uD83C\uDDF3', // as the sequence of two code points
+					'\uD83C\uDDFA\u200B\uD83C\uDDF3' // as the two code points separated by a zero-width space
+				);
+
+				if ( isIdentical ) {
+					return false;
+				}
+
+				/*
+				 * Test for English flag compatibility. England is a country in the United Kingdom, it
+				 * does not have a two letter locale code but rather a five letter sub-division code.
+				 *
+				 * To test for support, we try to render it, and compare the rendering to how it would look if
+				 * the browser doesn't render it correctly (black flag emoji + [G] + [B] + [E] + [N] + [G]).
+				 */
+				isIdentical = emojiSetsRenderIdentically(
+					context,
+					// as the flag sequence
+					'\uD83C\uDFF4\uDB40\uDC67\uDB40\uDC62\uDB40\uDC65\uDB40\uDC6E\uDB40\uDC67\uDB40\uDC7F',
+					// with each code point separated by a zero-width space
+					'\uD83C\uDFF4\u200B\uDB40\uDC67\u200B\uDB40\uDC62\u200B\uDB40\uDC65\u200B\uDB40\uDC6E\u200B\uDB40\uDC67\u200B\uDB40\uDC7F'
+				);
+
+				return ! isIdentical;
+			case 'emoji':
+				/*
+				 * Four and twenty blackbirds baked in a pie.
+				 *
+				 * To test for Emoji 15.0 support, try to render a new emoji: Blackbird.
+				 *
+				 * The Blackbird is a ZWJ sequence combining 🐦 Bird and ⬛ large black square.,
+				 *
+				 * 0x1F426 (\uD83D\uDC26) == Bird
+				 * 0x200D == Zero-Width Joiner (ZWJ) that links the code points for the new emoji or
+				 * 0x200B == Zero-Width Space (ZWS) that is rendered for clients not supporting the new emoji.
+				 * 0x2B1B == Large Black Square
+				 *
+				 * When updating this test for future Emoji releases, ensure that individual emoji that make up the
+				 * sequence come from older emoji standards.
+				 */
+				isIdentical = emojiSetsRenderIdentically(
+					context,
+					'\uD83D\uDC26\u200D\u2B1B', // as the zero-width joiner sequence
+					'\uD83D\uDC26\u200B\u2B1B' // separated by a zero-width space
+				);
+
+				return ! isIdentical;
+		}
+
+		return false;
+	}
+
+	/**
+	 * Checks emoji support tests.
+	 *
+	 * This function may be serialized to run in a Worker. Therefore, it cannot refer to variables from the containing
+	 * scope. Everything must be passed by parameters.
+	 *
+	 * @since 6.3.0
+	 *
+	 * @private
+	 *
+	 * @param {string[]} tests Tests.
+	 * @param {Function} browserSupportsEmoji Reference to browserSupportsEmoji function, needed due to minification.
+	 * @param {Function} emojiSetsRenderIdentically Reference to emojiSetsRenderIdentically function, needed due to minification.
+	 *
+	 * @return {SupportTests} Support tests.
+	 */
+	function testEmojiSupports( tests, browserSupportsEmoji, emojiSetsRenderIdentically ) {
+		var canvas;
+		if (
+			typeof WorkerGlobalScope !== 'undefined' &&
+			self instanceof WorkerGlobalScope
+		) {
+			canvas = new OffscreenCanvas( 300, 150 ); // Dimensions are default for HTMLCanvasElement.
+		} else {
+			canvas = document.createElement( 'canvas' );
+		}
+
+		var context = canvas.getContext( '2d', { willReadFrequently: true } );
+
+		/*
+		 * Chrome on OS X added native emoji rendering in M41. Unfortunately,
+		 * it doesn't work when the font is bolder than 500 weight. So, we
+		 * check for bold rendering support to avoid invisible emoji in Chrome.
+		 */
+		context.textBaseline = 'top';
+		context.font = '600 32px Arial';
+
+		var supports = {};
+		tests.forEach( function ( test ) {
+			supports[ test ] = browserSupportsEmoji( context, test, emojiSetsRenderIdentically );
+		} );
+		return supports;
+	}
+
+	/**
+	 * Adds a script to the head of the document.
+	 *
+	 * @ignore
+	 *
+	 * @since 4.2.0
+	 *
+	 * @param {string} src The url where the script is located.
+	 *
+	 * @return {void}
+	 */
+	function addScript( src ) {
+		var script = document.createElement( 'script' );
+		script.src = src;
+		script.defer = true;
+		document.head.appendChild( script );
+	}
+
+	settings.supports = {
+		everything: true,
+		everythingExceptFlag: true
+	};
+
+	// Create a promise for DOMContentLoaded since the worker logic may finish after the event has fired.
+	var domReadyPromise = new Promise( function ( resolve ) {
+		document.addEventListener( 'DOMContentLoaded', resolve, {
+			once: true
+		} );
+	} );
+
+	// Obtain the emoji support from the browser, asynchronously when possible.
+	new Promise( function ( resolve ) {
+		var supportTests = getSessionSupportTests();
+		if ( supportTests ) {
+			resolve( supportTests );
+			return;
+		}
+
+		if ( supportsWorkerOffloading() ) {
+			try {
+				// Note that the functions are being passed as arguments due to minification.
+				var workerScript =
+					'postMessage(' +
+					testEmojiSupports.toString() +
+					'(' +
+					[
+						JSON.stringify( tests ),
+						browserSupportsEmoji.toString(),
+						emojiSetsRenderIdentically.toString()
+					].join( ',' ) +
+					'));';
+				var blob = new Blob( [ workerScript ], {
+					type: 'text/javascript'
+				} );
+				var worker = new Worker( URL.createObjectURL( blob ), { name: 'wpTestEmojiSupports' } );
+				worker.onmessage = function ( event ) {
+					supportTests = event.data;
+					setSessionSupportTests( supportTests );
+					worker.terminate();
+					resolve( supportTests );
+				};
+				return;
+			} catch ( e ) {}
+		}
+
+		supportTests = testEmojiSupports( tests, browserSupportsEmoji, emojiSetsRenderIdentically );
+		setSessionSupportTests( supportTests );
+		resolve( supportTests );
+	} )
+		// Once the browser emoji support has been obtained from the session, finalize the settings.
+		.then( function ( supportTests ) {
+			/*
+			 * Tests the browser support for flag emojis and other emojis, and adjusts the
+			 * support settings accordingly.
+			 */
+			for ( var test in supportTests ) {
+				settings.supports[ test ] = supportTests[ test ];
+
+				settings.supports.everything =
+					settings.supports.everything && settings.supports[ test ];
+
+				if ( 'flag' !== test ) {
+					settings.supports.everythingExceptFlag =
+						settings.supports.everythingExceptFlag &&
+						settings.supports[ test ];
+				}
+			}
+
+			settings.supports.everythingExceptFlag =
+				settings.supports.everythingExceptFlag &&
+				! settings.supports.flag;
+
+			// Sets DOMReady to false and assigns a ready function to settings.
+			settings.DOMReady = false;
+			settings.readyCallback = function () {
+				settings.DOMReady = true;
+			};
+		} )
+		.then( function () {
+			return domReadyPromise;
+		} )
+		.then( function () {
+			// When the browser can not render everything we need to load a polyfill.
+			if ( ! settings.supports.everything ) {
+				settings.readyCallback();
+
+				var src = settings.source || {};
+
+				if ( src.concatemoji ) {
+					addScript( src.concatemoji );
+				} else if ( src.wpemoji && src.twemoji ) {
+					addScript( src.twemoji );
+					addScript( src.wpemoji );
+				}
+			}
+		} );
+} )( window, document, window._wpemojiSettings );
+
+/* ]]> */
+</script>
+<style id="wp-emoji-styles-inline-css" type="text/css">
+
+	img.wp-smiley, img.emoji {
+		display: inline !important;
+		border: none !important;
+		box-shadow: none !important;
+		height: 1em !important;
+		width: 1em !important;
+		margin: 0 0.07em !important;
+		vertical-align: -0.1em !important;
+		background: none !important;
+		padding: 0 !important;
+	}
+</style>
+<link rel="stylesheet" id="wp-block-library-css" href="./15_files/style.css" type="text/css" media="all">
+<style id="classic-theme-styles-inline-css" type="text/css">
+/**
+ * These rules are needed for backwards compatibility.
+ * They should match the button element rules in the base theme.json file.
+ */
+.wp-block-button__link {
+	color: #ffffff;
+	background-color: #32373c;
+	border-radius: 9999px; /* 100% causes an oval, but any explicit but really high value retains the pill shape. */
+
+	/* This needs a low specificity so it won't override the rules from the button element if defined in theme.json. */
+	box-shadow: none;
+	text-decoration: none;
+
+	/* The extra 2px are added to size solids the same as the outline versions.*/
+	padding: calc(0.667em + 2px) calc(1.333em + 2px);
+
+	font-size: 1.125em;
+}
+
+.wp-block-file__button {
+	background: #32373c;
+	color: #ffffff;
+	text-decoration: none;
+}
+
+</style>
+<style id="global-styles-inline-css" type="text/css">
+body{--wp--preset--color--black: #000000;--wp--preset--color--cyan-bluish-gray: #abb8c3;--wp--preset--color--white: #ffffff;--wp--preset--color--pale-pink: #f78da7;--wp--preset--color--vivid-red: #cf2e2e;--wp--preset--color--luminous-vivid-orange: #ff6900;--wp--preset--color--luminous-vivid-amber: #fcb900;--wp--preset--color--light-green-cyan: #7bdcb5;--wp--preset--color--vivid-green-cyan: #00d084;--wp--preset--color--pale-cyan-blue: #8ed1fc;--wp--preset--color--vivid-cyan-blue: #0693e3;--wp--preset--color--vivid-purple: #9b51e0;--wp--preset--gradient--vivid-cyan-blue-to-vivid-purple: linear-gradient(135deg,rgba(6,147,227,1) 0%,rgb(155,81,224) 100%);--wp--preset--gradient--light-green-cyan-to-vivid-green-cyan: linear-gradient(135deg,rgb(122,220,180) 0%,rgb(0,208,130) 100%);--wp--preset--gradient--luminous-vivid-amber-to-luminous-vivid-orange: linear-gradient(135deg,rgba(252,185,0,1) 0%,rgba(255,105,0,1) 100%);--wp--preset--gradient--luminous-vivid-orange-to-vivid-red: linear-gradient(135deg,rgba(255,105,0,1) 0%,rgb(207,46,46) 100%);--wp--preset--gradient--very-light-gray-to-cyan-bluish-gray: linear-gradient(135deg,rgb(238,238,238) 0%,rgb(169,184,195) 100%);--wp--preset--gradient--cool-to-warm-spectrum: linear-gradient(135deg,rgb(74,234,220) 0%,rgb(151,120,209) 20%,rgb(207,42,186) 40%,rgb(238,44,130) 60%,rgb(251,105,98) 80%,rgb(254,248,76) 100%);--wp--preset--gradient--blush-light-purple: linear-gradient(135deg,rgb(255,206,236) 0%,rgb(152,150,240) 100%);--wp--preset--gradient--blush-bordeaux: linear-gradient(135deg,rgb(254,205,165) 0%,rgb(254,45,45) 50%,rgb(107,0,62) 100%);--wp--preset--gradient--luminous-dusk: linear-gradient(135deg,rgb(255,203,112) 0%,rgb(199,81,192) 50%,rgb(65,88,208) 100%);--wp--preset--gradient--pale-ocean: linear-gradient(135deg,rgb(255,245,203) 0%,rgb(182,227,212) 50%,rgb(51,167,181) 100%);--wp--preset--gradient--electric-grass: linear-gradient(135deg,rgb(202,248,128) 0%,rgb(113,206,126) 100%);--wp--preset--gradient--midnight: linear-gradient(135deg,rgb(2,3,129) 0%,rgb(40,116,252) 100%);--wp--preset--font-size--small: 13px;--wp--preset--font-size--medium: 20px;--wp--preset--font-size--large: 36px;--wp--preset--font-size--x-large: 42px;--wp--preset--spacing--20: 0.44rem;--wp--preset--spacing--30: 0.67rem;--wp--preset--spacing--40: 1rem;--wp--preset--spacing--50: 1.5rem;--wp--preset--spacing--60: 2.25rem;--wp--preset--spacing--70: 3.38rem;--wp--preset--spacing--80: 5.06rem;--wp--preset--shadow--natural: 6px 6px 9px rgba(0, 0, 0, 0.2);--wp--preset--shadow--deep: 12px 12px 50px rgba(0, 0, 0, 0.4);--wp--preset--shadow--sharp: 6px 6px 0px rgba(0, 0, 0, 0.2);--wp--preset--shadow--outlined: 6px 6px 0px -3px rgba(255, 255, 255, 1), 6px 6px rgba(0, 0, 0, 1);--wp--preset--shadow--crisp: 6px 6px 0px rgba(0, 0, 0, 1);}:where(.is-layout-flex){gap: 0.5em;}:where(.is-layout-grid){gap: 0.5em;}body .is-layout-flex{display: flex;}body .is-layout-flex{flex-wrap: wrap;align-items: center;}body .is-layout-flex > *{margin: 0;}body .is-layout-grid{display: grid;}body .is-layout-grid > *{margin: 0;}:where(.wp-block-columns.is-layout-flex){gap: 2em;}:where(.wp-block-columns.is-layout-grid){gap: 2em;}:where(.wp-block-post-template.is-layout-flex){gap: 1.25em;}:where(.wp-block-post-template.is-layout-grid){gap: 1.25em;}.has-black-color{color: var(--wp--preset--color--black) !important;}.has-cyan-bluish-gray-color{color: var(--wp--preset--color--cyan-bluish-gray) !important;}.has-white-color{color: var(--wp--preset--color--white) !important;}.has-pale-pink-color{color: var(--wp--preset--color--pale-pink) !important;}.has-vivid-red-color{color: var(--wp--preset--color--vivid-red) !important;}.has-luminous-vivid-orange-color{color: var(--wp--preset--color--luminous-vivid-orange) !important;}.has-luminous-vivid-amber-color{color: var(--wp--preset--color--luminous-vivid-amber) !important;}.has-light-green-cyan-color{color: var(--wp--preset--color--light-green-cyan) !important;}.has-vivid-green-cyan-color{color: var(--wp--preset--color--vivid-green-cyan) !important;}.has-pale-cyan-blue-color{color: var(--wp--preset--color--pale-cyan-blue) !important;}.has-vivid-cyan-blue-color{color: var(--wp--preset--color--vivid-cyan-blue) !important;}.has-vivid-purple-color{color: var(--wp--preset--color--vivid-purple) !important;}.has-black-background-color{background-color: var(--wp--preset--color--black) !important;}.has-cyan-bluish-gray-background-color{background-color: var(--wp--preset--color--cyan-bluish-gray) !important;}.has-white-background-color{background-color: var(--wp--preset--color--white) !important;}.has-pale-pink-background-color{background-color: var(--wp--preset--color--pale-pink) !important;}.has-vivid-red-background-color{background-color: var(--wp--preset--color--vivid-red) !important;}.has-luminous-vivid-orange-background-color{background-color: var(--wp--preset--color--luminous-vivid-orange) !important;}.has-luminous-vivid-amber-background-color{background-color: var(--wp--preset--color--luminous-vivid-amber) !important;}.has-light-green-cyan-background-color{background-color: var(--wp--preset--color--light-green-cyan) !important;}.has-vivid-green-cyan-background-color{background-color: var(--wp--preset--color--vivid-green-cyan) !important;}.has-pale-cyan-blue-background-color{background-color: var(--wp--preset--color--pale-cyan-blue) !important;}.has-vivid-cyan-blue-background-color{background-color: var(--wp--preset--color--vivid-cyan-blue) !important;}.has-vivid-purple-background-color{background-color: var(--wp--preset--color--vivid-purple) !important;}.has-black-border-color{border-color: var(--wp--preset--color--black) !important;}.has-cyan-bluish-gray-border-color{border-color: var(--wp--preset--color--cyan-bluish-gray) !important;}.has-white-border-color{border-color: var(--wp--preset--color--white) !important;}.has-pale-pink-border-color{border-color: var(--wp--preset--color--pale-pink) !important;}.has-vivid-red-border-color{border-color: var(--wp--preset--color--vivid-red) !important;}.has-luminous-vivid-orange-border-color{border-color: var(--wp--preset--color--luminous-vivid-orange) !important;}.has-luminous-vivid-amber-border-color{border-color: var(--wp--preset--color--luminous-vivid-amber) !important;}.has-light-green-cyan-border-color{border-color: var(--wp--preset--color--light-green-cyan) !important;}.has-vivid-green-cyan-border-color{border-color: var(--wp--preset--color--vivid-green-cyan) !important;}.has-pale-cyan-blue-border-color{border-color: var(--wp--preset--color--pale-cyan-blue) !important;}.has-vivid-cyan-blue-border-color{border-color: var(--wp--preset--color--vivid-cyan-blue) !important;}.has-vivid-purple-border-color{border-color: var(--wp--preset--color--vivid-purple) !important;}.has-vivid-cyan-blue-to-vivid-purple-gradient-background{background: var(--wp--preset--gradient--vivid-cyan-blue-to-vivid-purple) !important;}.has-light-green-cyan-to-vivid-green-cyan-gradient-background{background: var(--wp--preset--gradient--light-green-cyan-to-vivid-green-cyan) !important;}.has-luminous-vivid-amber-to-luminous-vivid-orange-gradient-background{background: var(--wp--preset--gradient--luminous-vivid-amber-to-luminous-vivid-orange) !important;}.has-luminous-vivid-orange-to-vivid-red-gradient-background{background: var(--wp--preset--gradient--luminous-vivid-orange-to-vivid-red) !important;}.has-very-light-gray-to-cyan-bluish-gray-gradient-background{background: var(--wp--preset--gradient--very-light-gray-to-cyan-bluish-gray) !important;}.has-cool-to-warm-spectrum-gradient-background{background: var(--wp--preset--gradient--cool-to-warm-spectrum) !important;}.has-blush-light-purple-gradient-background{background: var(--wp--preset--gradient--blush-light-purple) !important;}.has-blush-bordeaux-gradient-background{background: var(--wp--preset--gradient--blush-bordeaux) !important;}.has-luminous-dusk-gradient-background{background: var(--wp--preset--gradient--luminous-dusk) !important;}.has-pale-ocean-gradient-background{background: var(--wp--preset--gradient--pale-ocean) !important;}.has-electric-grass-gradient-background{background: var(--wp--preset--gradient--electric-grass) !important;}.has-midnight-gradient-background{background: var(--wp--preset--gradient--midnight) !important;}.has-small-font-size{font-size: var(--wp--preset--font-size--small) !important;}.has-medium-font-size{font-size: var(--wp--preset--font-size--medium) !important;}.has-large-font-size{font-size: var(--wp--preset--font-size--large) !important;}.has-x-large-font-size{font-size: var(--wp--preset--font-size--x-large) !important;}
+.wp-block-navigation a:where(:not(.wp-element-button)){color: inherit;}
+:where(.wp-block-post-template.is-layout-flex){gap: 1.25em;}:where(.wp-block-post-template.is-layout-grid){gap: 1.25em;}
+:where(.wp-block-columns.is-layout-flex){gap: 2em;}:where(.wp-block-columns.is-layout-grid){gap: 2em;}
+.wp-block-pullquote{font-size: 1.5em;line-height: 1.6;}
+</style>
+<link rel="stylesheet" id="contact-form-7-css" href="./15_files/styles.css" type="text/css" media="all">
+<link rel="stylesheet" id="select2-css" href="./15_files/select2.min.css" type="text/css" media="all">
+<link rel="stylesheet" id="eltd_core-dashboard-style-css" href="./15_files/core-dashboard.min.css" type="text/css" media="all">
+<style id="woocommerce-inline-inline-css" type="text/css">
+.woocommerce form .form-row .required { visibility: visible; }
+</style>
+<link rel="stylesheet" id="savory-elated-default-style-css" href="./15_files/style(1).css" type="text/css" media="all">
+<link rel="stylesheet" id="savory-elated-modules-plugins-css" href="./15_files/plugins.min.css" type="text/css" media="all">
+<link rel="stylesheet" id="savory-elated-modules-css" href="./15_files/modules.min.css" type="text/css" media="all">
+<style id="savory-elated-modules-inline-css" type="text/css">
+/* generated in /home/marieta/public_html/wp-content/themes/savory/functions.php savory_elated_load_proper_main_style function */
+body.eltd-main-style2 .eltd-content h2, body.eltd-main-style2 .eltd-content h3, body.eltd-main-style2 .eltd-section-title, body.eltd-main-style2 .countdown-amount, body.eltd-main-style2 .eltd-blog-list-holder.eltd-blog-simple .eltd-blog-list-item .eltd-item-title { font-family: Open Sans;font-weight: 600;}
+
+/* generated in /home/marieta/public_html/wp-content/themes/savory/functions.php savory_elated_page_padding function */
+.page-id-5858 .eltd-content .eltd-content-inner > .eltd-container > .eltd-container-inner, .page-id-5858 .eltd-content .eltd-content-inner > .eltd-full-width > .eltd-full-width-inner, .postid-5858 .eltd-content .eltd-content-inner > .eltd-container > .eltd-container-inner, .postid-5858 .eltd-content .eltd-content-inner > .eltd-full-width > .eltd-full-width-inner { padding: 0 0 0 0;}
+
+
+.page-template-landing-page .eltd-ptf-centered .eltd-portfolio-list-holder article .eltd-item-text-overlay{
+ background-color: rgba(0,0,0,0.7);
+}
+
+
+.page-template-landing-page .eltd-portfolio-list-holder-outer.eltd-ptf-gallery.eltd-ptf-large-spacing .eltd-portfolio-list-holder{
+	margin: 0 -21px;
+}
+
+.page-template-landing-page .eltd-portfolio-list-holder-outer.eltd-ptf-gallery.eltd-ptf-large-spacing article{
+	padding: 0 21px;
+        margin: 0 0 42px;    
+}
+ .page-template-landing-page .eltd-portfolio-list-holder-outer.eltd-ptf-gallery.eltd-ptf-large-spacing article   .eltd-item-image-holder{
+-webkit-box-shadow: 3px 3px 30px 3px rgba(0,0,0,.2);
+    -moz-box-shadow: 3px 3px 30px 3px rgba(0,0,0,.2);
+    box-shadow: 3px 3px 30px 3px rgba(0,0,0,.2);
+}
+@media only screen and (max-width: 600px){
+      .page-template-landing-page .eltd-section-title-outer-holder .eltd-section-title-title-holder .eltd-section-title{
+	   font-size: 55px !important;
+      }
+#rightSlide_Home {
+    left: 0px !important;
+}
+}
+.eltd-vertical-align-containers .eltd-position-center:before, .eltd-vertical-align-containers .eltd-position-left:before, .eltd-vertical-align-containers .eltd-position-right:before {
+margin-right: 0;
+}
+
+.woocommerce .product .eltd-product-image-holder .eltd-product-image-overlay-inner .eltd-btn > span {
+    pointer-events: none;
+}
+</style>
+<link rel="stylesheet" id="eltd-font_awesome-css" href="./15_files/font-awesome.min.css" type="text/css" media="all">
+<link rel="stylesheet" id="eltd-font_elegant-css" href="./15_files/style.min.css" type="text/css" media="all">
+<link rel="stylesheet" id="eltd-ion_icons-css" href="./15_files/ionicons.min.css" type="text/css" media="all">
+<link rel="stylesheet" id="eltd-linea_icons-css" href="./15_files/style(2).css" type="text/css" media="all">
+<link rel="stylesheet" id="eltd-simple_line_icons-css" href="./15_files/simple-line-icons.css" type="text/css" media="all">
+<link rel="stylesheet" id="eltd-dripicons-css" href="./15_files/dripicons.css" type="text/css" media="all">
+<link rel="stylesheet" id="eltd-linear_icons-css" href="./15_files/style(3).css" type="text/css" media="all">
+<link rel="stylesheet" id="savory-elated-blog-css" href="./15_files/blog.min.css" type="text/css" media="all">
+<link rel="stylesheet" id="mediaelement-css" href="./15_files/mediaelementplayer-legacy.min.css" type="text/css" media="all">
+<link rel="stylesheet" id="wp-mediaelement-css" href="./15_files/wp-mediaelement.css" type="text/css" media="all">
+<link rel="stylesheet" id="savory-elated-woocommerce-css" href="./15_files/woocommerce.min.css" type="text/css" media="all">
+<link rel="stylesheet" id="savory-elated-style-dynamic-css" href="./15_files/style_dynamic.css" type="text/css" media="all">
+<link rel="stylesheet" id="savory-elated-modules-responsive-css" href="./15_files/modules-responsive.min.css" type="text/css" media="all">
+<link rel="stylesheet" id="savory-elated-blog-responsive-css" href="./15_files/blog-responsive.min.css" type="text/css" media="all">
+<link rel="stylesheet" id="savory-elated-woocommerce-responsive-css" href="./15_files/woocommerce-responsive.min.css" type="text/css" media="all">
+<link rel="stylesheet" id="savory-elated-style-dynamic-responsive-css" href="./15_files/style_dynamic_responsive.css" type="text/css" media="all">
+<link rel="stylesheet" id="savory-elated-google-fonts-css" href="./15_files/css" type="text/css" media="all">
+<link rel="stylesheet" id="js_composer_front-css" href="./15_files/js_composer.min.css" type="text/css" media="all">
+<script type="text/javascript" src="./15_files/jquery.js.download" id="jquery-core-js"></script>
+<script type="text/javascript" src="./15_files/jquery-migrate.js.download" id="jquery-migrate-js"></script>
+<script type="text/javascript" src="./15_files/jquery.blockUI.js.download" id="jquery-blockui-js" data-wp-strategy="defer"></script>
+<script type="text/javascript" id="wc-add-to-cart-js-extra">
+/* <![CDATA[ */
+var wc_add_to_cart_params = {"ajax_url":"\/wp-admin\/admin-ajax.php","wc_ajax_url":"\/?wc-ajax=%%endpoint%%","i18n_view_cart":"View cart","cart_url":"https:\/\/marieta.in\/?page_id=9","is_cart":"","cart_redirect_after_add":"no"};
+/* ]]> */
+</script>
+<script type="text/javascript" src="./15_files/add-to-cart.js.download" id="wc-add-to-cart-js" data-wp-strategy="defer"></script>
+<script type="text/javascript" src="./15_files/js.cookie.js.download" id="js-cookie-js" defer="defer" data-wp-strategy="defer"></script>
+<script type="text/javascript" id="woocommerce-js-extra">
+/* <![CDATA[ */
+var woocommerce_params = {"ajax_url":"\/wp-admin\/admin-ajax.php","wc_ajax_url":"\/?wc-ajax=%%endpoint%%"};
+/* ]]> */
+</script>
+<script type="text/javascript" src="./15_files/woocommerce.js.download" id="woocommerce-js" defer="defer" data-wp-strategy="defer"></script>
+<script type="text/javascript" src="./15_files/woocommerce-add-to-cart.js.download" id="vc_woocommerce-add-to-cart-js-js"></script>
+<link rel="https://api.w.org/" href="https://marieta.in/wp-json/"><link rel="alternate" type="application/json" href="https://marieta.in/wp-json/wp/v2/pages/5858"><link rel="EditURI" type="application/rsd+xml" title="RSD" href="https://marieta.in/xmlrpc.php?rsd">
+<meta name="generator" content="WordPress 6.5.3">
+<meta name="generator" content="WooCommerce 8.8.3">
+<link rel="canonical" href="https://marieta.in/">
+<link rel="shortlink" href="https://marieta.in/">
+<link rel="alternate" type="application/json+oembed" href="https://marieta.in/wp-json/oembed/1.0/embed?url=https%3A%2F%2Fmarieta.in%2F">
+<link rel="alternate" type="text/xml+oembed" href="https://marieta.in/wp-json/oembed/1.0/embed?url=https%3A%2F%2Fmarieta.in%2F&amp;format=xml">
+	<link rel="preconnect" href="https://fonts.googleapis.com/">
+	<link rel="preconnect" href="https://fonts.gstatic.com/">
+	<link href="./15_files/css2" rel="stylesheet">	<noscript><style>.woocommerce-product-gallery{ opacity: 1 !important; }</style></noscript>
+	<meta name="generator" content="Powered by WPBakery Page Builder - drag and drop page builder for WordPress.">
+<meta name="generator" content="Powered by Slider Revolution 6.6.7 - responsive, Mobile-Friendly Slider Plugin for WordPress with comfortable drag and drop interface.">
+<link rel="icon" href="https://marieta.in/wp-content/uploads/2024/04/cropped-M-logo-32x32.png" sizes="32x32">
+<link rel="icon" href="https://marieta.in/wp-content/uploads/2024/04/cropped-M-logo-192x192.png" sizes="192x192">
+<link rel="apple-touch-icon" href="https://marieta.in/wp-content/uploads/2024/04/cropped-M-logo-180x180.png">
+<meta name="msapplication-TileImage" content="https://marieta.in/wp-content/uploads/2024/04/cropped-M-logo-270x270.png">
+<script>function setREVStartSize(e){
+			//window.requestAnimationFrame(function() {
+				window.RSIW = window.RSIW===undefined ? window.innerWidth : window.RSIW;
+				window.RSIH = window.RSIH===undefined ? window.innerHeight : window.RSIH;
+				try {
+					var pw = document.getElementById(e.c).parentNode.offsetWidth,
+						newh;
+					pw = pw===0 || isNaN(pw) || (e.l=="fullwidth" || e.layout=="fullwidth") ? window.RSIW : pw;
+					e.tabw = e.tabw===undefined ? 0 : parseInt(e.tabw);
+					e.thumbw = e.thumbw===undefined ? 0 : parseInt(e.thumbw);
+					e.tabh = e.tabh===undefined ? 0 : parseInt(e.tabh);
+					e.thumbh = e.thumbh===undefined ? 0 : parseInt(e.thumbh);
+					e.tabhide = e.tabhide===undefined ? 0 : parseInt(e.tabhide);
+					e.thumbhide = e.thumbhide===undefined ? 0 : parseInt(e.thumbhide);
+					e.mh = e.mh===undefined || e.mh=="" || e.mh==="auto" ? 0 : parseInt(e.mh,0);
+					if(e.layout==="fullscreen" || e.l==="fullscreen")
+						newh = Math.max(e.mh,window.RSIH);
+					else{
+						e.gw = Array.isArray(e.gw) ? e.gw : [e.gw];
+						for (var i in e.rl) if (e.gw[i]===undefined || e.gw[i]===0) e.gw[i] = e.gw[i-1];
+						e.gh = e.el===undefined || e.el==="" || (Array.isArray(e.el) && e.el.length==0)? e.gh : e.el;
+						e.gh = Array.isArray(e.gh) ? e.gh : [e.gh];
+						for (var i in e.rl) if (e.gh[i]===undefined || e.gh[i]===0) e.gh[i] = e.gh[i-1];
+											
+						var nl = new Array(e.rl.length),
+							ix = 0,
+							sl;
+						e.tabw = e.tabhide>=pw ? 0 : e.tabw;
+						e.thumbw = e.thumbhide>=pw ? 0 : e.thumbw;
+						e.tabh = e.tabhide>=pw ? 0 : e.tabh;
+						e.thumbh = e.thumbhide>=pw ? 0 : e.thumbh;
+						for (var i in e.rl) nl[i] = e.rl[i]<window.RSIW ? 0 : e.rl[i];
+						sl = nl[0];
+						for (var i in nl) if (sl>nl[i] && nl[i]>0) { sl = nl[i]; ix=i;}
+						var m = pw>(e.gw[ix]+e.tabw+e.thumbw) ? 1 : (pw-(e.tabw+e.thumbw)) / (e.gw[ix]);
+						newh =  (e.gh[ix] * m) + (e.tabh + e.thumbh);
+					}
+					var el = document.getElementById(e.c);
+					if (el!==null && el) el.style.height = newh+"px";
+					el = document.getElementById(e.c+"_wrapper");
+					if (el!==null && el) {
+						el.style.height = newh+"px";
+						el.style.display = "block";
+					}
+				} catch(e){
+					console.log("Failure at Presize of Slider:" + e)
+				}
+			//});
+		  };</script>
+	<style id="egf-frontend-styles" type="text/css">
+		p {} h1 {} h2 {font-family: 'Reem Kufi', sans-serif;font-style: normal;font-weight: 400;} h3 {} h4 {} h5 {} h6 {} 	</style>
+	<style type="text/css" data-type="vc_shortcodes-custom-css">.vc_custom_1713416379140{background-color: #fcf7ef !important;}.vc_custom_1713416418010{padding-right: 13% !important;padding-left: 13% !important;background-color: #fcf7ef !important;}.vc_custom_1709715057567{padding-bottom: 100px !important;}.vc_custom_1710921180375{padding-top: 95px !important;padding-bottom: 30px !important;background-color: #ebebeb !important;}.vc_custom_1710908897458{padding-top: 100px !important;padding-bottom: 80px !important;}.vc_custom_1710908908266{padding-top: 95px !important;padding-bottom: 50px !important;}.vc_custom_1713416938941{background-color: #fcf7ef !important;}.vc_custom_1713416379140{background-color: #fcf7ef !important;}.vc_custom_1713416623652{padding-top: 40px !important;padding-bottom: 58px !important;background-color: #fcf7ef !important;}.vc_custom_1710908920279{padding-bottom: 60px !important;}.vc_custom_1710911043619{padding-top: 98px !important;padding-bottom: 58px !important;background-color: #f9f9fb !important;}.vc_custom_1710908947245{padding-top: 95px !important;padding-bottom: 100px !important;}.vc_custom_1710908993881{padding-top: 100px !important;padding-bottom: 100px !important;}.vc_custom_1713416532695{background-color: #fcf7ef !important;}.vc_custom_1710909182323{background-color: #ebebeb !important;}.vc_custom_1710911030290{padding-top: 95px !important;padding-bottom: 55px !important;}.vc_custom_1710909478215{padding-bottom: 80px !important;}.vc_custom_1713416682674{background-color: #fcf7ef !important;}.vc_custom_1713781496692{padding-right: 40px !important;padding-left: 40px !important;}.vc_custom_1713773890655{padding-right: 60px !important;padding-left: 60px !important;}.vc_custom_1713774025354{padding-right: 30px !important;padding-left: 30px !important;}.vc_custom_1713774033435{padding-right: 30px !important;padding-left: 30px !important;}.vc_custom_1713781714268{padding-right: 40px !important;padding-left: 40px !important;}.vc_custom_1475483953431{padding-right: 8% !important;padding-left: 8% !important;}.vc_custom_1475483964695{padding-right: 8% !important;padding-left: 8% !important;}.vc_custom_1475483974279{padding-right: 8% !important;padding-left: 8% !important;}.vc_custom_1475483983743{padding-right: 8% !important;padding-left: 8% !important;}.vc_custom_1475484113399{padding-right: 3% !important;padding-left: 3% !important;}</style><noscript><style> .wpb_animate_when_almost_visible { opacity: 1; }</style></noscript>	<style>
+	@media only screen and (max-width: 600px){
+      .page-template-landing-page .eltd-section-title-outer-holder .eltd-section-title-title-holder .eltd-section-title{
+	   font-size: 55px !important;
+      }
+#rightSlide_Home {
+    left: 115px !important;
+	top: 136px !important;
+}
+
+	#left_slider_home {
+    left: 115px !important;
+    top: 380px !important;
+}
+		
+}
+	</style>
+<script src="./15_files/twemoji.js.download" defer=""></script><script src="./15_files/wp-emoji.js.download" defer=""></script><style>.fluidvids {width: 100%; max-width: 100%; position: relative;}.fluidvids-item {position: absolute; top: 0px; left: 0px; width: 100%; height: 100%;}</style><style type="text/css">
+      * {
+        -webkit-user-select: text !important;
+        -moz-user-select: text !important;
+        -ms-user-select: text !important;
+        user-select: text !important;
+      }
+    </style></head>
+
+<body class="home page-template page-template-full-width page-template-full-width-php page page-id-5858 page-parent theme-savory eltd-core-1.6 woocommerce-js savory-ver-2.3 eltd-smooth-scroll eltd-grid-1200 eltd-blog-installed eltd-main-style2 eltd-header-dual eltd-sticky-header-on-scroll-down-up eltd-default-mobile-header eltd-sticky-up-mobile-header eltd-dropdown-animate-height eltd-light-header eltd-fullscreen-search eltd-search-fade eltd-enable-sidemenu-area-opener eltd-side-menu-slide-with-content eltd-width-370 wpb-js-composer js-comp-ver-6.10.0 vc_responsive rs-ISM vsc-initialized">
+<section class="eltd-side-menu right" style="overflow-y: hidden; outline: none;" tabindex="0">
+		<div class="eltd-close-side-menu-holder">
+		<div class="eltd-close-side-menu-holder-inner">
+			<a href="https://marieta.in/#" target="_self" class="eltd-close-side-menu">
+				<span aria-hidden="true" class="icon_close"></span>
+			</a>
+		</div>
+	</div>
+	<div id="text-7" class="widget eltd-sidearea-widget widget_text">			<div class="textwidget"><img src="./15_files/logo-footer.png" alt="logo">
+<div class="vc_empty_space" style="height: 10px"><span class="vc_empty_space_inner"></span></div>
+Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque.
+<div class="vc_empty_space" style="height: 15px"><span class="vc_empty_space_inner"></span></div>
++387648592568 <br>
+<div class="vc_empty_space" style="height: 5px"><span class="vc_empty_space_inner"></span></div>
+info@elatedthemes.com<br>
+<div class="vc_empty_space" style="height: 5px"><span class="vc_empty_space_inner"></span></div>
+Eighth Avenue 487, New York
+</div>
+		</div></section>
+
+
+<div class="eltd-wrapper">
+    <div class="eltd-wrapper-inner">
+        <div class="eltd-fullscreen-search-holder">
+	<div class="eltd-fullscreen-search-close-container">
+		<div class="eltd-search-close-holder">
+			<a class="eltd-fullscreen-search-close" href="javascript:void(0)">
+				<span aria-hidden="true" class="eltd-icon-font-elegant icon_close "></span>			</a>
+		</div>
+	</div>
+	<div class="eltd-fullscreen-search-table">
+		<div class="eltd-fullscreen-search-cell">
+			<div class="eltd-fullscreen-search-inner">
+				<form action="https://marieta.in/" class="eltd-fullscreen-search-form" method="get">
+					<div class="eltd-form-holder">
+						<span class="eltd-search-label">Search</span>
+						<div class="eltd-field-holder">
+							<input type="text" name="s" class="eltd-search-field" autocomplete="off">
+							<div class="eltd-line"></div>
+						</div>
+						<input type="submit" class="eltd-search-submit" value="U">
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+</div>
+    <header class="eltd-page-header">
+
+        <div class="eltd-logo-area">
+            <div class="eltd-vertical-align-containers">
+                <div class="eltd-position-center">
+                    <div class="eltd-position-center-inner">
+                        
+<div class="eltd-logo-wrapper">
+    <a href="https://marieta.in/" style="height: 93px;">
+        <img class="eltd-normal-logo" src="./15_files/M-logo-11.png" alt="Logo">
+        <img class="eltd-dark-logo" src="./15_files/cropped-M-logo.png" alt="Dark Logoo">        <img class="eltd-light-logo" src="./15_files/M-logo-11.png" alt="Light Logo">    </a>
+</div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="eltd-menu-area">
+            <div class="eltd-vertical-align-containers">
+                <div class="eltd-position-center">
+<!--                    <div class="eltd-position-center-inner">-->
+                        
+<nav class="eltd-main-menu eltd-drop-down eltd-default-nav">
+    <ul id="menu-main-new" class="clearfix"><li id="nav-menu-item-8386" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-home current-menu-item page_item page-item-5858 current_page_item eltd-active-item narrow"><a href="https://marieta.in/" class=" current "><span class="item_outer"><span class="item_inner"><span class="menu_icon_wrapper"><i class="eltd-icon-font-awesome fa  "></i></span><span class="item_text">Home</span></span><span class="plus"></span></span></a></li>
+<li id="nav-menu-item-8411" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-has-children  has_sub narrow"><a href="https://marieta.in/#" class=""><span class="item_outer"><span class="item_inner"><span class="menu_icon_wrapper"><i class="eltd-icon-font-awesome fa  "></i></span><span class="item_text">Menu</span></span><span class="plus"></span></span></a>
+<div class="second" style="height: 0px;"><div class="inner"><ul>
+	<li id="nav-menu-item-8412" class="menu-item menu-item-type-custom menu-item-object-custom "><a href="https://marieta.in/wp-content/uploads/2025/02/Marieta-Food-And-Beverage.pdf" class=""><span class="item_outer"><span class="item_inner"><span class="menu_icon_wrapper"><i class="eltd-icon-font-awesome fa  "></i></span><span class="item_text">Food</span></span><span class="plus"></span></span></a></li>
+	<li id="nav-menu-item-8413" class="menu-item menu-item-type-custom menu-item-object-custom "><a href="https://marieta.in/wp-content/uploads/2025/02/Marieta-Bar-Menu.pdf" class=""><span class="item_outer"><span class="item_inner"><span class="menu_icon_wrapper"><i class="eltd-icon-font-awesome fa  "></i></span><span class="item_text">Bar</span></span><span class="plus"></span></span></a></li>
+</ul></div></div>
+</li>
+<li id="nav-menu-item-8388" class="menu-item menu-item-type-post_type menu-item-object-page  narrow"><a href="https://marieta.in/contact-page/" class=""><span class="item_outer"><span class="item_inner"><span class="menu_icon_wrapper"><i class="eltd-icon-font-awesome fa  "></i></span><span class="item_text">Contact</span></span><span class="plus"></span></span></a></li>
+</ul></nav>
+                        <!--                    </div>-->
+                </div>
+            </div>
+        </div>
+
+        
+<div class="eltd-sticky-header header-appear">
+        <div class="eltd-sticky-holder">
+                <div class=" eltd-vertical-align-containers">
+                <div class="eltd-position-left">
+                    <div class="eltd-position-left-inner">
+                        
+<div class="eltd-logo-wrapper">
+    <a href="https://marieta.in/" style="height: 256px;">
+        <img class="eltd-normal-logo" src="./15_files/cropped-M-logo.png" alt="Logo">
+        <img class="eltd-dark-logo" src="./15_files/cropped-M-logo.png" alt="Dark Logoo">        <img class="eltd-light-logo" src="./15_files/M-logo-11.png" alt="Light Logo">    </a>
+</div>
+
+                    </div>
+                </div>
+                <div class="eltd-position-center">
+                    <div class="eltd-position-center-inner">
+                        
+<nav class="eltd-main-menu eltd-drop-down eltd-sticky-nav">
+    <ul id="menu-main-new-1" class="clearfix"><li id="sticky-nav-menu-item-8386" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-home current-menu-item page_item page-item-5858 current_page_item eltd-active-item narrow"><a href="https://marieta.in/" class=" current "><span class="item_outer"><span class="item_inner"><span class="menu_icon_wrapper"><i class="eltd-icon-font-awesome fa  "></i></span><span class="item_text">Home</span></span><span class="plus"></span></span></a></li>
+<li id="sticky-nav-menu-item-8411" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-has-children  has_sub narrow"><a href="https://marieta.in/#" class=""><span class="item_outer"><span class="item_inner"><span class="menu_icon_wrapper"><i class="eltd-icon-font-awesome fa  "></i></span><span class="item_text">Menu</span></span><span class="plus"></span></span></a>
+<div class="second" style="height: 0px;"><div class="inner"><ul>
+	<li id="sticky-nav-menu-item-8412" class="menu-item menu-item-type-custom menu-item-object-custom "><a href="https://marieta.in/wp-content/uploads/2025/02/Marieta-Food-And-Beverage.pdf" class=""><span class="item_outer"><span class="item_inner"><span class="menu_icon_wrapper"><i class="eltd-icon-font-awesome fa  "></i></span><span class="item_text">Food</span></span><span class="plus"></span></span></a></li>
+	<li id="sticky-nav-menu-item-8413" class="menu-item menu-item-type-custom menu-item-object-custom "><a href="https://marieta.in/wp-content/uploads/2025/02/Marieta-Bar-Menu.pdf" class=""><span class="item_outer"><span class="item_inner"><span class="menu_icon_wrapper"><i class="eltd-icon-font-awesome fa  "></i></span><span class="item_text">Bar</span></span><span class="plus"></span></span></a></li>
+</ul></div></div>
+</li>
+<li id="sticky-nav-menu-item-8388" class="menu-item menu-item-type-post_type menu-item-object-page  narrow"><a href="https://marieta.in/contact-page/" class=""><span class="item_outer"><span class="item_inner"><span class="menu_icon_wrapper"><i class="eltd-icon-font-awesome fa  "></i></span><span class="item_text">Contact</span></span><span class="plus"></span></span></a></li>
+</ul></nav>
+
+                    </div>
+                </div>
+                <div class="eltd-position-right">
+                    <div class="eltd-position-right-inner">
+                                            </div>
+                </div>
+            </div>
+                </div>
+</div>
+
+    </header>
+
+
+<header class="eltd-mobile-header eltd-animate-mobile-header" style="margin-bottom: 100px;">
+    <div class="eltd-mobile-header-inner">
+                <div class="eltd-mobile-header-holder">
+            <div class="eltd-grid">
+                <div class="eltd-vertical-align-containers">
+                                            <div class="eltd-mobile-menu-opener">
+                            <a href="javascript:void(0)">
+                    <span class="eltd-mobile-opener-icon-holder">
+                        <i class="eltd-icon-font-awesome fa fa-bars "></i>                    </span>
+                            </a>
+                        </div>
+                                                                <div class="eltd-position-center">
+                            <div class="eltd-position-center-inner">
+                                
+<div class="eltd-mobile-logo-wrapper">
+    <a href="https://marieta.in/" style="height: 611px">
+        <img src="./15_files/M-logo.png" alt="Mobile Logo">
+    </a>
+</div>
+
+                            </div>
+                        </div>
+                                        <div class="eltd-position-right">
+                        <div class="eltd-position-right-inner">
+                                                    </div>
+                    </div>
+                </div> <!-- close .eltd-vertical-align-containers -->
+            </div>
+        </div>
+        
+	<nav class="eltd-mobile-nav" role="navigation" aria-label="Mobile Menu">
+		<div class="eltd-grid">
+
+			<ul id="menu-main-new-2" class=""><li id="mobile-menu-item-8386" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-home current-menu-item page_item page-item-5858 current_page_item eltd-active-item"><a href="https://marieta.in/" class=" current "><span>Home</span></a></li>
+<li id="mobile-menu-item-8411" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-has-children  has_sub"><a href="https://marieta.in/#" class=""><span>Menu</span></a><span class="mobile_arrow"><i class="eltd-sub-arrow fa fa-angle-right"></i><i class="fa fa-angle-down"></i></span>
+<ul class="sub_menu">
+	<li id="mobile-menu-item-8412" class="menu-item menu-item-type-custom menu-item-object-custom "><a href="https://marieta.in/wp-content/uploads/2025/02/Marieta-Food-And-Beverage.pdf" class=""><span>Food</span></a></li>
+	<li id="mobile-menu-item-8413" class="menu-item menu-item-type-custom menu-item-object-custom "><a href="https://marieta.in/wp-content/uploads/2025/02/Marieta-Bar-Menu.pdf" class=""><span>Bar</span></a></li>
+</ul>
+</li>
+<li id="mobile-menu-item-8388" class="menu-item menu-item-type-post_type menu-item-object-page "><a href="https://marieta.in/contact-page/" class=""><span>Contact</span></a></li>
+</ul>		</div>
+	</nav>
+
+    </div>
+</header> <!-- close .eltd-mobile-header -->
+
+
+                    <a id="eltd-back-to-top" href="https://marieta.in/#" class="on">
+                <span class="eltd-icon-stack">
+                     <span aria-hidden="true" class="eltd-icon-font-elegant arrow_carrot-up  "></span>                </span>
+            </a>
+                <div class="eltd-fullscreen-menu-holder-outer">
+	<div class="eltd-fullscreen-menu-holder">
+		<div class="eltd-fullscreen-menu-holder-inner">
+			<nav class="eltd-fullscreen-menu">
+	<ul id="menu-fullscreen-menu" class=""><li id="popup-menu-item-8068" class="menu-item menu-item-type-custom menu-item-object-custom current-menu-ancestor current-menu-parent menu-item-has-children eltd-active-item has_sub"><a href="https://marieta.in/#" class=" current "><span>Home</span></a>
+<ul class="sub_menu">
+	<li id="popup-menu-item-8326" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-home current-menu-item page_item page-item-5858 current_page_item "><a href="https://marieta.in/" class=""><span>Restaurant Home</span></a></li>
+</ul>
+</li>
+<li id="popup-menu-item-8069" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-has-children  has_sub"><a href="https://marieta.in/#" class=""><span>Pages</span></a>
+<ul class="sub_menu">
+	<li id="popup-menu-item-8334" class="menu-item menu-item-type-post_type menu-item-object-page "><a href="https://marieta.in/contact-page/" class=""><span>#6501 (no title)</span></a></li>
+</ul>
+</li>
+<li id="popup-menu-item-8070" class="menu-item menu-item-type-custom menu-item-object-custom "><a href="https://marieta.in/#" class=""><span>Elements</span></a></li>
+<li id="popup-menu-item-8071" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-has-children  has_sub"><a href="https://marieta.in/#" class=""><span>Portfolio</span></a>
+<ul class="sub_menu">
+	<li id="popup-menu-item-8072" class="menu-item menu-item-type-custom menu-item-object-custom "><a href="https://marieta.in/#" class=""><span>Portfolio Single</span></a></li>
+</ul>
+</li>
+<li id="popup-menu-item-8073" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-has-children  has_sub"><a href="https://marieta.in/#" class=""><span>Blog</span></a>
+<ul class="sub_menu">
+	<li id="popup-menu-item-8074" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-has-children  has_sub"><a href="https://marieta.in/#" class=""><span>Blog Single</span></a>
+	<ul class="sub_menu">
+		<li id="popup-menu-item-8356" class="menu-item menu-item-type-post_type menu-item-object-post "><a href="https://marieta.in/2016/04/13/find-now-the-answers-to-your-sugar-questions/" class=""><span>Right Sidebar</span></a></li>
+		<li id="popup-menu-item-8357" class="menu-item menu-item-type-post_type menu-item-object-post "><a href="https://marieta.in/2016/04/13/amazing-friday-afternoon-in-the-crystal-palace-park/" class=""><span>Left Sidebar</span></a></li>
+		<li id="popup-menu-item-8358" class="menu-item menu-item-type-post_type menu-item-object-post "><a href="https://marieta.in/2016/04/13/working-hours-everyday-the-same-happy-days/" class=""><span>Without Sidebar</span></a></li>
+		<li id="popup-menu-item-8359" class="menu-item menu-item-type-post_type menu-item-object-post "><a href="https://marieta.in/2016/04/13/the-real-way-to-do-new-york-city/" class=""><span>Gallery</span></a></li>
+		<li id="popup-menu-item-8360" class="menu-item menu-item-type-post_type menu-item-object-post "><a href="https://marieta.in/2016/04/13/on-the-other-hand-we-denounce-with-you/" class=""><span>Link</span></a></li>
+		<li id="popup-menu-item-8361" class="menu-item menu-item-type-post_type menu-item-object-post "><a href="https://marieta.in/2016/04/13/maya-angelou/" class=""><span>Quote</span></a></li>
+		<li id="popup-menu-item-8362" class="menu-item menu-item-type-post_type menu-item-object-post "><a href="https://marieta.in/2016/04/13/quick-trip-with-friends-to-the-city-of-light/" class=""><span>Audio</span></a></li>
+		<li id="popup-menu-item-8363" class="menu-item menu-item-type-post_type menu-item-object-post "><a href="https://marieta.in/2016/04/13/our-long-week-holiday-by-the-cold-ocean/" class=""><span>Video</span></a></li>
+	</ul>
+</li>
+</ul>
+</li>
+<li id="popup-menu-item-8075" class="menu-item menu-item-type-custom menu-item-object-custom "><a href="https://marieta.in/#" class=""><span>Shop</span></a></li>
+</ul></nav>				<div class="eltd-fullscreen-below-menu-widget-holder">
+					<div class="widget_eltd_social_icon_widget eltd-fullscreen-menu-below-widget">
+    <span class="eltd-icon-shortcode normal" style="margin: 0 20px 0 0" data-hover-color="#868686" data-color="#ffffff">
+                    <a class="" href="https://vimeo.com/" target="_blank">
+        
+        <span aria-hidden="true" class="eltd-icon-font-elegant social_vimeo eltd-icon-element" style="color: #ffffff;font-size:18px"></span>
+                    </a>
+            </span>
+
+</div><div class="widget_eltd_social_icon_widget eltd-fullscreen-menu-below-widget">
+    <span class="eltd-icon-shortcode normal" style="margin: 0 22px 0 0" data-hover-color="#868686" data-color="#ffffff">
+                    <a class="" href="http://instagram.com/" target="_blank">
+        
+        <span aria-hidden="true" class="eltd-icon-font-elegant social_instagram eltd-icon-element" style="color: #ffffff;font-size:18px"></span>
+                    </a>
+            </span>
+
+</div><div class="widget_eltd_social_icon_widget eltd-fullscreen-menu-below-widget">
+    <span class="eltd-icon-shortcode normal" style="margin: 0 22px 0 0" data-hover-color="#868686" data-color="#ffffff">
+                    <a class="" href="http://twitter.com/" target="_blank">
+        
+        <span aria-hidden="true" class="eltd-icon-font-elegant social_twitter eltd-icon-element" style="color: #ffffff;font-size:18px"></span>
+                    </a>
+            </span>
+
+</div><div class="widget_eltd_social_icon_widget eltd-fullscreen-menu-below-widget">
+    <span class="eltd-icon-shortcode normal" data-hover-color="#868686" data-color="#ffffff">
+                    <a class="" href="http://www.facebook.com/" target="_blank">
+        
+        <span aria-hidden="true" class="eltd-icon-font-elegant social_facebook eltd-icon-element" style="color: #ffffff;font-size:18px"></span>
+                    </a>
+            </span>
+
+</div>				</div>
+					</div>
+	</div>
+</div>
+        <div class="eltd-content" style="margin-top: -170px">
+            <div class="eltd-content-inner"><!--	<div class="eltd-slider--><!--">-->
+<!--		<div class="eltd-slider--><!---inner">-->
+			
+			<!-- START video home REVOLUTION SLIDER 6.6.7 -->
+			<rs-fullwidth-wrap id="rev_slider_9_1_forcefullwidth" style=""><rs-module-wrap id="rev_slider_9_1_wrapper" data-source="gallery" style="visibility: visible; background: rgb(255, 255, 255); padding: 0px; height: 642px; display: block; width: 1519px; margin-top: 0px; margin-bottom: 0px; position: absolute; max-height: none; overflow: visible; transform: translate(0px, 0px); top: 0px; left: 0px;"><rs-module id="rev_slider_9_1" style="height: 100%; width: 1519px; max-height: none;" data-version="6.6.7" data-idcheck="true" class="revslider-initialised rev_redraw_on_blurfocus" data-slideactive="rs-19">
+					
+				<rs-loader class="spinner3 " style="display: none;"><div style="background-color:#ffffff" class="dot1"></div><div style="background-color:#ffffff" class="dot2"></div><div style="background-color:#ffffff" class="bounce1"></div><div style="background-color:#ffffff" class="bounce2"></div><div style="background-color:#ffffff" class="bounce3"></div></rs-loader><rs-slides style="overflow: hidden; position: absolute; visibility: visible; max-height: none; height: 100%; width: 100%;">
+						<rs-slide style="position: absolute; display: block; overflow: hidden; height: 100%; width: 100%; z-index: 20; opacity: 1; visibility: inherit;" data-key="rs-19" data-title="Slide" data-in="o:0;" data-out="a:false;" data-originalindex="1" data-origindex="0" data-description="" data-sba="" data-scroll-based="false" data-owidth="1920" data-oheight="1080" data-rspausetimeronce="0" data-isactiveslide="true"><rs-sbg-px><rs-sbg-wrap data-key="rs-19" data-owidth="1920" data-oheight="1080"><!--Runtime Modification - Img tag is Still Available for SEO Goals in Source - <img src="//marieta.in/wp-content/plugins/revslider/public/assets/assets/dummy.png" alt="" title="Marieta-website-reel-_19.jpeg" width="1920" height="1080" class="rev-slidebg tp-rs-img rs-lazyload" data-lazyload="//marieta.in/wp-content/uploads/revslider/video-media/Marieta-website-reel-_19.jpeg" data-no-retina="">--><rs-sbg data-lazyload="//marieta.in/wp-content/uploads/revslider/video-media/Marieta-website-reel-_19.jpeg" class="" data-bgcolor="transparent" style="width: 100%; height: 100%;" data-src-rs-ref="//marieta.in/wp-content/uploads/revslider/video-media/Marieta-website-reel-_19.jpeg"><canvas style="width: 100%; height: 100%; background-color: transparent; opacity: 1; filter: none;" width="1920" height="811"></canvas></rs-sbg><rs-bgvideo data-video="vc:none;w:100%;h:100%;nse:false;l:loopandnoslidestop;ptimer:false;do:12;doca:rgba(211, 211, 211, 0.05);docb:rgba(53, 53, 53, 0.1);" data-ytid="lCEwyWHgwZ0" data-vatr="version=3&amp;enablejsapi=1&amp;html5=1&amp;hd=1&amp;wmode=opaque&amp;showinfo=0&amp;rel=0&amp;origin=https://marieta.in;" id="rs-bg-video-634594" class="defaultvid rs-apiready" data-key="rs-19" style="z-index: 30; display: block; opacity: 1;"><div class="rs-fullvideo-cover"></div><iframe allow="autoplay; fullscreen" type="text/html" src="./15_files/lCEwyWHgwZ0.html" allowfullscreen="" width="100%" height="100%" class="intrinsic-ignore" style="opacity: 1; visibility: visible; width: 100%; height: 420.63%; max-height: none; max-width: none; position: absolute; left: 0px; top: -160.315%; display: block;" id="iframe49432" title="Marieta"></iframe></rs-bgvideo><rs-dotted style="background-image:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAMAAAADCAYAAABWKLW/AAAAAXNSR0IArs4c6QAAACZJREFUGFdjNDQ0lFq+fPlnBgYGBsYbN27wRkZG8oIEwByQKEgAABcMDdtJjNf7AAAAAElFTkSuQmCC)"></rs-dotted></rs-sbg-wrap></rs-sbg-px>
+							
+							
+<!--
+							--><rs-layer-wrap id="logo_slider_home" class="rs-parallax-wrap" style="position: absolute; display: block; pointer-events: auto; left: 418px; top: 189px; z-index: 7; visibility: visible; perspective: 601px;"><rs-layer id="slider-9-slide-19-layer-2" data-type="image" data-rsp_ch="on" data-xy="x:c;y:m;" data-text="w:normal;" data-dim="w:[&#39;1169px&#39;,&#39;1169px&#39;,&#39;1169px&#39;,&#39;1169px&#39;];h:[&#39;452px&#39;,&#39;452px&#39;,&#39;452px&#39;,&#39;452px&#39;];" data-wrpid="logo_slider_home" data-frame_999="o:0;st:w;" style="z-index: 7; color: rgb(255, 255, 255); width: 682px; height: 264px; min-height: 0px; min-width: 0px; max-height: none; max-width: none; transform-origin: 50% 50%; opacity: 1; transform: translate(0px, 0px); visibility: visible;" class="rs-layer" data-idcheck="true" data-stylerecorder="true" data-initialised="true"><img src="./15_files/Marieta-logo_-1536x594.png" alt="" class="tp-rs-img rs-lazyload" width="1536" height="594" data-lazyload="//marieta.in/wp-content/uploads/2024/04/Marieta-logo_-1536x594.png" data-no-retina="" data-reference="//marieta.in/wp-content/uploads/2024/04/Marieta-logo_-1536x594.png" data-src-rs-ref="//marieta.in/wp-content/uploads/2024/04/Marieta-logo_-1536x594.png" style="position: relative; height: 100%; width: 100%;"> 
+							</rs-layer></rs-layer-wrap><!--
+-->						</rs-slide>
+					</rs-slides><rs-progress style="visibility:hidden;"><rs-progress-bar style="background: rgba(255, 255, 255, 0.5);"></rs-progress-bar></rs-progress></rs-module>
+				
+				<script>
+					setREVStartSize({c: 'rev_slider_9_1',rl:[1240,1024,778,480],el:[1099.99,768,960,720],gw:[1200,1000,778,480],gh:[1100,768,960,720],type:'hero',justify:'',layout:'fullscreen',offsetContainer:'',offset:'',mh:"0"});if (window.RS_MODULES!==undefined && window.RS_MODULES.modules!==undefined && window.RS_MODULES.modules["revslider91"]!==undefined) {window.RS_MODULES.modules["revslider91"].once = false;window.revapi9 = undefined;if (window.RS_MODULES.checkMinimal!==undefined) window.RS_MODULES.checkMinimal()}
+				</script>
+				<script src="./15_files/iframe_api"></script>
+			</rs-module-wrap><rs-fw-forcer style="height:642px"></rs-fw-forcer></rs-fullwidth-wrap>
+			<!-- END REVOLUTION SLIDER -->
+<!--		</div>-->
+<!--	</div>-->
+
+<div class="eltd-full-width">
+<div class="eltd-full-width-inner">
+						<section class="wpb-content-wrapper"><div class="vc_row wpb_row vc_row-fluid eltd-section vc_custom_1713416379140 eltd-content-aligment-left" style=""><div class="clearfix eltd-full-section-inner"><div class="wpb_column vc_column_container vc_col-sm-3"><div class="vc_column-inner"><div class="wpb_wrapper"></div></div></div><div class="wpb_column vc_column_container vc_col-sm-6"><div class="vc_column-inner"><div class="wpb_wrapper"><div class="vc_empty_space" style="height: 60px"><span class="vc_empty_space_inner"></span></div>
+	<div class="wpb_single_image wpb_content_element vc_align_left  vc_custom_1713781496692">
+		
+		<figure class="wpb_wrapper vc_figure">
+			<div class="vc_single_image-wrapper   vc_box_border_grey"><img fetchpriority="high" decoding="async" width="1777" height="344" src="./15_files/Our-story-2-e1713781646156.png" class="vc_single_image-img attachment-full" alt="" title="Our story" srcset="https://marieta.in/wp-content/uploads/2024/04/Our-story-2-e1713781646156.png 1777w, https://marieta.in/wp-content/uploads/2024/04/Our-story-2-e1713781646156-300x58.png 300w, https://marieta.in/wp-content/uploads/2024/04/Our-story-2-e1713781646156-1024x198.png 1024w, https://marieta.in/wp-content/uploads/2024/04/Our-story-2-e1713781646156-768x149.png 768w, https://marieta.in/wp-content/uploads/2024/04/Our-story-2-e1713781646156-1536x297.png 1536w, https://marieta.in/wp-content/uploads/2024/04/Our-story-2-e1713781646156-600x116.png 600w" sizes="(max-width: 1777px) 100vw, 1777px"></div>
+		</figure>
+	</div>
+<div class="vc_empty_space" style="height: 30px"><span class="vc_empty_space_inner"></span></div>
+	<div class="wpb_text_column wpb_content_element  vc_custom_1713773890655">
+		<div class="wpb_wrapper">
+			<p style="font-family: &#39;Montserrat&#39;; font-weight: 500; color: #324c22; text-align: center;">Embark on a global culinary journey infused with the vibrant energy of Latin America, all complemented by our agave-spirited bar. Set in a lively space, Marièta pulses with life. As the sun sets, so do the lights, but everything else rises –<br>
+energy, music, expectations.</p>
+
+		</div>
+	</div>
+<div class="vc_empty_space" style="height: 40px"><span class="vc_empty_space_inner"></span></div></div></div></div><div class="wpb_column vc_column_container vc_col-sm-3"><div class="vc_column-inner"><div class="wpb_wrapper"></div></div></div></div></div><div class="vc_row wpb_row vc_row-fluid eltd-section vc_custom_1713416418010 eltd-content-aligment-left" style=""><div class="clearfix eltd-full-section-inner"><div class="wpb_column vc_column_container vc_col-sm-6"><div class="vc_column-inner"><div class="wpb_wrapper">
+	<div class="wpb_single_image wpb_content_element vc_align_center">
+		
+		<figure class="wpb_wrapper vc_figure">
+			<a href="https://marieta.in/wp-content/uploads/2025/01/Marieta-Food-And-Beverage.pdf" target="_self" class="vc_single_image-wrapper   vc_box_border_grey"><img decoding="async" width="800" height="822" src="./15_files/food-menu1.png" class="vc_single_image-img attachment-full" alt="" title="food menu1" srcset="https://marieta.in/wp-content/uploads/2024/04/food-menu1.png 800w, https://marieta.in/wp-content/uploads/2024/04/food-menu1-600x617.png 600w, https://marieta.in/wp-content/uploads/2024/04/food-menu1-292x300.png 292w, https://marieta.in/wp-content/uploads/2024/04/food-menu1-768x789.png 768w" sizes="(max-width: 800px) 100vw, 800px"></a>
+		</figure>
+	</div>
+<div class="vc_empty_space" style="height: 15px"><span class="vc_empty_space_inner"></span></div><a href="https://marieta.in/wp-content/uploads/2025/02/Marieta-Food-And-Beverage.pdf" target="_blank" style="color: #324c22;font-weight: 700;margin: 0px 0px 0px 0px" class="eltd-btn eltd-btn-huge-full-width eltd-btn-transparent">
+	    <span class="eltd-btn-text">FOOD MENU</span>
+    </a><div class="eltd-separator-holder clearfix  eltd-separator-center">
+	<div class="eltd-separator" style="border-color: #324c22;border-style: solid;width: 150px;border-bottom-width: 2pxpx"></div>
+</div>
+
+	<div class="wpb_text_column wpb_content_element  vc_custom_1713774025354">
+		<div class="wpb_wrapper">
+			<p style="font-family: &#39;Montserrat&#39;; font-weight: 500; color: #324c22; text-align: center; font-size: 15px;">Marièta invites you on a culinary journey that transcends borders with a menu that features a vast selection of globally inspired dishes.</p>
+
+		</div>
+	</div>
+<div class="vc_empty_space" style="height: 32px"><span class="vc_empty_space_inner"></span></div></div></div></div><div class="wpb_column vc_column_container vc_col-sm-6"><div class="vc_column-inner"><div class="wpb_wrapper">
+	<div class="wpb_single_image wpb_content_element vc_align_center">
+		
+		<figure class="wpb_wrapper vc_figure">
+			<a href="https://marieta.in/wp-content/uploads/2025/02/Marieta-Bar-Menu.pdf" target="_self" class="vc_single_image-wrapper   vc_box_border_grey"><img decoding="async" width="800" height="819" src="./15_files/cocktail-menu1.png" class="vc_single_image-img attachment-full" alt="" title="cocktail menu1" srcset="https://marieta.in/wp-content/uploads/2024/04/cocktail-menu1.png 800w, https://marieta.in/wp-content/uploads/2024/04/cocktail-menu1-600x614.png 600w, https://marieta.in/wp-content/uploads/2024/04/cocktail-menu1-293x300.png 293w, https://marieta.in/wp-content/uploads/2024/04/cocktail-menu1-768x786.png 768w" sizes="(max-width: 800px) 100vw, 800px"></a>
+		</figure>
+	</div>
+<div class="vc_empty_space" style="height: 15px"><span class="vc_empty_space_inner"></span></div><a href="https://marieta.in/wp-content/uploads/2025/02/Marieta-Bar-Menu.pdf" target="_self" style="color: #324c22;font-weight: 700;margin: 0px 0px 0px 0px" class="eltd-btn eltd-btn-huge-full-width eltd-btn-transparent eltd-btn-hover-animation eltd-btn-sweep-from-left">
+			<div class="eltd-btn-hover-overlay"></div>
+	    <span class="eltd-btn-text">COCKTAIL MENU</span>
+    </a><div class="eltd-separator-holder clearfix  eltd-separator-center">
+	<div class="eltd-separator" style="border-color: #324c22;border-style: solid;width: 170px;border-bottom-width: 2pxpx"></div>
+</div>
+
+	<div class="wpb_text_column wpb_content_element  vc_custom_1713774033435">
+		<div class="wpb_wrapper">
+			<p style="font-family: &#39;Montserrat&#39;; font-weight: 500; color: #324c22; text-align: center; font-size: 15px;">Agave forward mixology offering a selection of crafted tequila and mezcal cocktails and signature concoctions that celebrate the Latino way of life.</p>
+
+		</div>
+	</div>
+<div class="vc_empty_space" style="height: 32px"><span class="vc_empty_space_inner"></span></div></div></div></div></div></div><div class="vc_row wpb_row vc_row-fluid eltd-section vc_custom_1713416379140 eltd-content-aligment-left" style=""><div class="clearfix eltd-full-section-inner"><div class="wpb_column vc_column_container vc_col-sm-3"><div class="vc_column-inner"><div class="wpb_wrapper"></div></div></div><div class="wpb_column vc_column_container vc_col-sm-6"><div class="vc_column-inner"><div class="wpb_wrapper"><div class="vc_empty_space" style="height: 60px"><span class="vc_empty_space_inner"></span></div>
+	<div class="wpb_single_image wpb_content_element vc_align_left  vc_custom_1713781714268">
+		
+		<figure class="wpb_wrapper vc_figure">
+			<div class="vc_single_image-wrapper   vc_box_border_grey"><img loading="lazy" decoding="async" width="1780" height="347" src="./15_files/Our-philosophy_-1-e1713781691895.png" class="vc_single_image-img attachment-full" alt="" title="Our philosophy_" srcset="https://marieta.in/wp-content/uploads/2024/04/Our-philosophy_-1-e1713781691895.png 1780w, https://marieta.in/wp-content/uploads/2024/04/Our-philosophy_-1-e1713781691895-300x58.png 300w, https://marieta.in/wp-content/uploads/2024/04/Our-philosophy_-1-e1713781691895-1024x200.png 1024w, https://marieta.in/wp-content/uploads/2024/04/Our-philosophy_-1-e1713781691895-768x150.png 768w, https://marieta.in/wp-content/uploads/2024/04/Our-philosophy_-1-e1713781691895-1536x299.png 1536w, https://marieta.in/wp-content/uploads/2024/04/Our-philosophy_-1-e1713781691895-600x117.png 600w" sizes="(max-width: 1780px) 100vw, 1780px"></div>
+		</figure>
+	</div>
+</div></div></div><div class="wpb_column vc_column_container vc_col-sm-3"><div class="vc_column-inner"><div class="wpb_wrapper"></div></div></div></div></div><div class="vc_row wpb_row vc_row-fluid eltd-section vc_custom_1713416623652 eltd-content-aligment-left eltd-grid-section" style=""><div class="clearfix eltd-section-inner"><div class="eltd-section-inner-margin clearfix"><div class="wpb_column vc_column_container vc_col-sm-4"><div class="vc_column-inner"><div class="wpb_wrapper"><div class="eltd-iwt eltd-iwt-icon-top eltd-iwt-icon-tiny">
+    <div class="eltd-iwt-icon-holder">
+                    <img loading="lazy" decoding="async" width="150" height="150" src="./15_files/Untitled-2-01.png" class="attachment-full size-full" alt="">            </div>
+    <div class="eltd-iwt-content-holder">
+        <div class="eltd-iwt-title-holder">
+            <h5></h5>
+        </div>
+        <div class="eltd-iwt-text-holder">
+            <p style="color: #324c22">At Marieta, we celebrate the essence of Agave, the plant at the very heart of Latin American Spirits. We’ve poured our passion and creativity into crafting drinks that embody agave-forward mixology.</p>
+
+                    </div>
+    </div>
+</div><div class="vc_empty_space" style="height: 30px"><span class="vc_empty_space_inner"></span></div></div></div></div><div class="wpb_column vc_column_container vc_col-sm-4"><div class="vc_column-inner"><div class="wpb_wrapper"><div class="eltd-iwt eltd-iwt-icon-top eltd-iwt-icon-tiny">
+    <div class="eltd-iwt-icon-holder">
+                    <img loading="lazy" decoding="async" width="150" height="150" src="./15_files/Untitled-2-02.png" class="attachment-full size-full" alt="">            </div>
+    <div class="eltd-iwt-content-holder">
+        <div class="eltd-iwt-title-holder">
+            <h5></h5>
+        </div>
+        <div class="eltd-iwt-text-holder">
+            <p style="color: #324c22">A fleeting moment of connection, a shared laugh, a stolen kiss - each mark tells a tale of unforgettable moments Marièta has shared with friends and strangers alike. Experience Marièta's playful essence here, brimming with laughter, joy, and mischievous charm.</p>
+
+                    </div>
+    </div>
+</div><div class="vc_empty_space" style="height: 30px"><span class="vc_empty_space_inner"></span></div></div></div></div><div class="wpb_column vc_column_container vc_col-sm-4"><div class="vc_column-inner"><div class="wpb_wrapper"><div class="eltd-iwt eltd-iwt-icon-top eltd-iwt-icon-tiny">
+    <div class="eltd-iwt-icon-holder">
+                    <img loading="lazy" decoding="async" width="150" height="150" src="./15_files/Untitled-2-03.png" class="attachment-full size-full" alt="">            </div>
+    <div class="eltd-iwt-content-holder">
+        <div class="eltd-iwt-title-holder">
+            <h5></h5>
+        </div>
+        <div class="eltd-iwt-text-holder">
+            <p style="color: #324c22">Chilli, a revered plant in Mexico known for its protective charm and fiery flavour, is a central element of their cuisine and culture. We honour its mystical appeal and culinary prowess, infusing its spicy allure into our vibrant offerings.</p>
+
+                    </div>
+    </div>
+</div><div class="vc_empty_space" style="height: 30px"><span class="vc_empty_space_inner"></span></div></div></div></div></div></div></div><div class="vc_row wpb_row vc_row-fluid eltd-section vc_custom_1713416532695 eltd-content-aligment-left" style=""><div class="clearfix eltd-full-section-inner"><div class="wpb_column vc_column_container vc_col-sm-12"><div class="vc_column-inner"><div class="wpb_wrapper"><div class="eltd-image-gallery eltd-image-owl-slider">
+    <div class="eltd-image-gallery-carousel eltd-image-gallery-slides-holder owl-carousel owl-theme owl-loaded" data-autoplay="3" data-animation="slide" data-navigation="yes" data-pagination="no" data-images-shown="5" style="opacity: 1; visibility: visible;">
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+            <div class="owl-stage-outer"><div class="owl-stage" style="transform: translate3d(-1823.04px, 0px, 0px); transition: 0.4s; width: 10026.7px;"><div class="owl-item cloned" style="width: 303.84px; margin-right: 0px;"><a href="https://marieta.in/wp-content/uploads/2024/04/Heat-Check-Picante.jpg" data-rel="prettyPhoto[single_pretty_photo]" title="Heat Check – Picante" style="z-index: -1;">
+            <img loading="lazy" decoding="async" width="150" height="150" src="./15_files/Heat-Check-Picante-150x150.jpg" class="attachment-thumbnail size-thumbnail" alt="" srcset="https://marieta.in/wp-content/uploads/2024/04/Heat-Check-Picante-150x150.jpg 150w, https://marieta.in/wp-content/uploads/2024/04/Heat-Check-Picante-550x550.jpg 550w, https://marieta.in/wp-content/uploads/2024/04/Heat-Check-Picante-1000x1000.jpg 1000w, https://marieta.in/wp-content/uploads/2024/04/Heat-Check-Picante-300x300.jpg 300w, https://marieta.in/wp-content/uploads/2024/04/Heat-Check-Picante-200x200.jpg 200w" sizes="(max-width: 150px) 100vw, 150px">            </a></div><div class="owl-item cloned" style="width: 303.84px; margin-right: 0px;"><a href="https://marieta.in/wp-content/uploads/2024/04/Hand-of-God.jpg" data-rel="prettyPhoto[single_pretty_photo]" title="Hand of God" style="z-index: -1;">
+            <img loading="lazy" decoding="async" width="150" height="150" src="./15_files/Hand-of-God-150x150.jpg" class="attachment-thumbnail size-thumbnail" alt="" srcset="https://marieta.in/wp-content/uploads/2024/04/Hand-of-God-150x150.jpg 150w, https://marieta.in/wp-content/uploads/2024/04/Hand-of-God-550x550.jpg 550w, https://marieta.in/wp-content/uploads/2024/04/Hand-of-God-1000x1000.jpg 1000w, https://marieta.in/wp-content/uploads/2024/04/Hand-of-God-300x300.jpg 300w, https://marieta.in/wp-content/uploads/2024/04/Hand-of-God-200x200.jpg 200w" sizes="(max-width: 150px) 100vw, 150px">            </a></div><div class="owl-item cloned" style="width: 303.84px; margin-right: 0px;"><a href="https://marieta.in/wp-content/uploads/2024/04/DSC00535.jpg" data-rel="prettyPhoto[single_pretty_photo]" title="DSC00535" style="z-index: -1;">
+            <img loading="lazy" decoding="async" width="150" height="150" src="./15_files/DSC00535-150x150.jpg" class="attachment-thumbnail size-thumbnail" alt="" srcset="https://marieta.in/wp-content/uploads/2024/04/DSC00535-150x150.jpg 150w, https://marieta.in/wp-content/uploads/2024/04/DSC00535-550x550.jpg 550w, https://marieta.in/wp-content/uploads/2024/04/DSC00535-1000x1000.jpg 1000w, https://marieta.in/wp-content/uploads/2024/04/DSC00535-300x300.jpg 300w, https://marieta.in/wp-content/uploads/2024/04/DSC00535-200x200.jpg 200w" sizes="(max-width: 150px) 100vw, 150px">            </a></div><div class="owl-item cloned" style="width: 303.84px; margin-right: 0px;"><a href="https://marieta.in/wp-content/uploads/2024/04/Charred-bread-bomb.png" data-rel="prettyPhoto[single_pretty_photo]" title="Charred bread bomb" style="z-index: -1;">
+            <img loading="lazy" decoding="async" width="150" height="150" src="./15_files/Charred-bread-bomb-150x150.png" class="attachment-thumbnail size-thumbnail" alt="" srcset="https://marieta.in/wp-content/uploads/2024/04/Charred-bread-bomb-150x150.png 150w, https://marieta.in/wp-content/uploads/2024/04/Charred-bread-bomb-550x550.png 550w, https://marieta.in/wp-content/uploads/2024/04/Charred-bread-bomb-1000x1000.png 1000w, https://marieta.in/wp-content/uploads/2024/04/Charred-bread-bomb-300x300.png 300w, https://marieta.in/wp-content/uploads/2024/04/Charred-bread-bomb-200x200.png 200w" sizes="(max-width: 150px) 100vw, 150px">            </a></div><div class="owl-item cloned" style="width: 303.84px; margin-right: 0px;"><a href="https://marieta.in/wp-content/uploads/2024/04/Berry-and-Mascarpone-French-Toast.jpg" data-rel="prettyPhoto[single_pretty_photo]" title="Berry and Mascarpone French Toast" style="z-index: -1;">
+            <img loading="lazy" decoding="async" width="150" height="150" src="./15_files/Berry-and-Mascarpone-French-Toast-150x150.jpg" class="attachment-thumbnail size-thumbnail" alt="" srcset="https://marieta.in/wp-content/uploads/2024/04/Berry-and-Mascarpone-French-Toast-150x150.jpg 150w, https://marieta.in/wp-content/uploads/2024/04/Berry-and-Mascarpone-French-Toast-550x550.jpg 550w, https://marieta.in/wp-content/uploads/2024/04/Berry-and-Mascarpone-French-Toast-1000x1000.jpg 1000w, https://marieta.in/wp-content/uploads/2024/04/Berry-and-Mascarpone-French-Toast-300x300.jpg 300w, https://marieta.in/wp-content/uploads/2024/04/Berry-and-Mascarpone-French-Toast-200x200.jpg 200w" sizes="(max-width: 150px) 100vw, 150px">            </a></div><div class="owl-item" style="width: 303.84px; margin-right: 0px;"><a href="https://marieta.in/wp-content/uploads/2024/05/IMG-6.jpg" data-rel="prettyPhoto[single_pretty_photo]" title="IMG 6" style="z-index: -1;">
+            <img loading="lazy" decoding="async" width="150" height="150" src="./15_files/IMG-6-150x150.jpg" class="attachment-thumbnail size-thumbnail" alt="" srcset="https://marieta.in/wp-content/uploads/2024/05/IMG-6-150x150.jpg 150w, https://marieta.in/wp-content/uploads/2024/05/IMG-6-550x550.jpg 550w, https://marieta.in/wp-content/uploads/2024/05/IMG-6-300x300.jpg 300w, https://marieta.in/wp-content/uploads/2024/05/IMG-6-200x200.jpg 200w" sizes="(max-width: 150px) 100vw, 150px">            </a></div><div class="owl-item active" style="width: 303.84px; margin-right: 0px;"><a href="https://marieta.in/wp-content/uploads/2024/04/1.png" data-rel="prettyPhoto[single_pretty_photo]" title="1" style="z-index: -1;">
+            <img loading="lazy" decoding="async" width="150" height="150" src="./15_files/1-150x150.png" class="attachment-thumbnail size-thumbnail" alt="" srcset="https://marieta.in/wp-content/uploads/2024/04/1-150x150.png 150w, https://marieta.in/wp-content/uploads/2024/04/1-550x550.png 550w, https://marieta.in/wp-content/uploads/2024/04/1-1000x1000.png 1000w, https://marieta.in/wp-content/uploads/2024/04/1-300x300.png 300w, https://marieta.in/wp-content/uploads/2024/04/1-200x200.png 200w" sizes="(max-width: 150px) 100vw, 150px">            </a></div><div class="owl-item active" style="width: 303.84px; margin-right: 0px;"><a href="https://marieta.in/wp-content/uploads/2024/04/2.png" data-rel="prettyPhoto[single_pretty_photo]" title="2" style="z-index: -1;">
+            <img loading="lazy" decoding="async" width="150" height="150" src="./15_files/2-150x150.png" class="attachment-thumbnail size-thumbnail" alt="" srcset="https://marieta.in/wp-content/uploads/2024/04/2-150x150.png 150w, https://marieta.in/wp-content/uploads/2024/04/2-550x550.png 550w, https://marieta.in/wp-content/uploads/2024/04/2-1000x1000.png 1000w, https://marieta.in/wp-content/uploads/2024/04/2-300x300.png 300w, https://marieta.in/wp-content/uploads/2024/04/2-200x200.png 200w" sizes="(max-width: 150px) 100vw, 150px">            </a></div><div class="owl-item active" style="width: 303.84px; margin-right: 0px;"><a href="https://marieta.in/wp-content/uploads/2024/05/IMG-5.jpg" data-rel="prettyPhoto[single_pretty_photo]" title="IMG 5" style="z-index: -1;">
+            <img loading="lazy" decoding="async" width="150" height="150" src="./15_files/IMG-5-150x150.jpg" class="attachment-thumbnail size-thumbnail" alt="" srcset="https://marieta.in/wp-content/uploads/2024/05/IMG-5-150x150.jpg 150w, https://marieta.in/wp-content/uploads/2024/05/IMG-5-550x550.jpg 550w, https://marieta.in/wp-content/uploads/2024/05/IMG-5-300x300.jpg 300w, https://marieta.in/wp-content/uploads/2024/05/IMG-5-200x200.jpg 200w" sizes="(max-width: 150px) 100vw, 150px">            </a></div><div class="owl-item active" style="width: 303.84px; margin-right: 0px;"><a href="https://marieta.in/wp-content/uploads/2024/04/6.png" data-rel="prettyPhoto[single_pretty_photo]" title="6" style="z-index: -1;">
+            <img loading="lazy" decoding="async" width="150" height="150" src="./15_files/6-150x150.png" class="attachment-thumbnail size-thumbnail" alt="" srcset="https://marieta.in/wp-content/uploads/2024/04/6-150x150.png 150w, https://marieta.in/wp-content/uploads/2024/04/6-550x550.png 550w, https://marieta.in/wp-content/uploads/2024/04/6-1000x1000.png 1000w, https://marieta.in/wp-content/uploads/2024/04/6-300x300.png 300w, https://marieta.in/wp-content/uploads/2024/04/6-200x200.png 200w" sizes="(max-width: 150px) 100vw, 150px">            </a></div><div class="owl-item active" style="width: 303.84px; margin-right: 0px;"><a href="https://marieta.in/wp-content/uploads/2024/04/3.png" data-rel="prettyPhoto[single_pretty_photo]" title="3" style="z-index: -1;">
+            <img loading="lazy" decoding="async" width="150" height="150" src="./15_files/3-150x150.png" class="attachment-thumbnail size-thumbnail" alt="" srcset="https://marieta.in/wp-content/uploads/2024/04/3-150x150.png 150w, https://marieta.in/wp-content/uploads/2024/04/3-550x550.png 550w, https://marieta.in/wp-content/uploads/2024/04/3-1000x1000.png 1000w, https://marieta.in/wp-content/uploads/2024/04/3-300x300.png 300w, https://marieta.in/wp-content/uploads/2024/04/3-200x200.png 200w" sizes="(max-width: 150px) 100vw, 150px">            </a></div><div class="owl-item" style="width: 303.84px; margin-right: 0px;"><a href="https://marieta.in/wp-content/uploads/2024/05/IMG-2.jpg" data-rel="prettyPhoto[single_pretty_photo]" title="IMG 2" style="z-index: -1;">
+            <img loading="lazy" decoding="async" width="150" height="150" src="./15_files/IMG-2-150x150.jpg" class="attachment-thumbnail size-thumbnail" alt="" srcset="https://marieta.in/wp-content/uploads/2024/05/IMG-2-150x150.jpg 150w, https://marieta.in/wp-content/uploads/2024/05/IMG-2-550x550.jpg 550w, https://marieta.in/wp-content/uploads/2024/05/IMG-2-300x300.jpg 300w, https://marieta.in/wp-content/uploads/2024/05/IMG-2-200x200.jpg 200w" sizes="(max-width: 150px) 100vw, 150px">            </a></div><div class="owl-item" style="width: 303.84px; margin-right: 0px;"><a href="https://marieta.in/wp-content/uploads/2024/04/8.png" data-rel="prettyPhoto[single_pretty_photo]" title="8" style="z-index: -1;">
+            <img loading="lazy" decoding="async" width="150" height="150" src="./15_files/8-150x150.png" class="attachment-thumbnail size-thumbnail" alt="" srcset="https://marieta.in/wp-content/uploads/2024/04/8-150x150.png 150w, https://marieta.in/wp-content/uploads/2024/04/8-550x550.png 550w, https://marieta.in/wp-content/uploads/2024/04/8-1000x1000.png 1000w, https://marieta.in/wp-content/uploads/2024/04/8-300x300.png 300w, https://marieta.in/wp-content/uploads/2024/04/8-200x200.png 200w" sizes="(max-width: 150px) 100vw, 150px">            </a></div><div class="owl-item" style="width: 303.84px; margin-right: 0px;"><a href="https://marieta.in/wp-content/uploads/2024/04/9.png" data-rel="prettyPhoto[single_pretty_photo]" title="9" style="z-index: -1;">
+            <img loading="lazy" decoding="async" width="150" height="150" src="./15_files/9-150x150.png" class="attachment-thumbnail size-thumbnail" alt="" srcset="https://marieta.in/wp-content/uploads/2024/04/9-150x150.png 150w, https://marieta.in/wp-content/uploads/2024/04/9-550x550.png 550w, https://marieta.in/wp-content/uploads/2024/04/9-1000x1000.png 1000w, https://marieta.in/wp-content/uploads/2024/04/9-300x300.png 300w, https://marieta.in/wp-content/uploads/2024/04/9-200x200.png 200w" sizes="(max-width: 150px) 100vw, 150px">            </a></div><div class="owl-item" style="width: 303.84px; margin-right: 0px;"><a href="https://marieta.in/wp-content/uploads/2024/04/10.png" data-rel="prettyPhoto[single_pretty_photo]" title="10" style="z-index: -1;">
+            <img loading="lazy" decoding="async" width="150" height="150" src="./15_files/10-150x150.png" class="attachment-thumbnail size-thumbnail" alt="" srcset="https://marieta.in/wp-content/uploads/2024/04/10-150x150.png 150w, https://marieta.in/wp-content/uploads/2024/04/10-550x550.png 550w, https://marieta.in/wp-content/uploads/2024/04/10-1000x1000.png 1000w, https://marieta.in/wp-content/uploads/2024/04/10-300x300.png 300w, https://marieta.in/wp-content/uploads/2024/04/10-200x200.png 200w" sizes="(max-width: 150px) 100vw, 150px">            </a></div><div class="owl-item" style="width: 303.84px; margin-right: 0px;"><a href="https://marieta.in/wp-content/uploads/2024/04/13.png" data-rel="prettyPhoto[single_pretty_photo]" title="13" style="z-index: -1;">
+            <img loading="lazy" decoding="async" width="150" height="150" src="./15_files/13-150x150.png" class="attachment-thumbnail size-thumbnail" alt="" srcset="https://marieta.in/wp-content/uploads/2024/04/13-150x150.png 150w, https://marieta.in/wp-content/uploads/2024/04/13-550x550.png 550w, https://marieta.in/wp-content/uploads/2024/04/13-1000x1000.png 1000w, https://marieta.in/wp-content/uploads/2024/04/13-300x300.png 300w, https://marieta.in/wp-content/uploads/2024/04/13-200x200.png 200w" sizes="(max-width: 150px) 100vw, 150px">            </a></div><div class="owl-item" style="width: 303.84px; margin-right: 0px;"><a href="https://marieta.in/wp-content/uploads/2024/04/egg-shot.png" data-rel="prettyPhoto[single_pretty_photo]" title="egg shot" style="z-index: -1;">
+            <img loading="lazy" decoding="async" width="150" height="150" src="./15_files/egg-shot-150x150.png" class="attachment-thumbnail size-thumbnail" alt="" srcset="https://marieta.in/wp-content/uploads/2024/04/egg-shot-150x150.png 150w, https://marieta.in/wp-content/uploads/2024/04/egg-shot-550x550.png 550w, https://marieta.in/wp-content/uploads/2024/04/egg-shot-1000x1000.png 1000w, https://marieta.in/wp-content/uploads/2024/04/egg-shot-300x300.png 300w, https://marieta.in/wp-content/uploads/2024/04/egg-shot-200x200.png 200w" sizes="(max-width: 150px) 100vw, 150px">            </a></div><div class="owl-item" style="width: 303.84px; margin-right: 0px;"><a href="https://marieta.in/wp-content/uploads/2024/04/Young-Tomato-Prawn-Sphagetti.jpg" data-rel="prettyPhoto[single_pretty_photo]" title="Young Tomato Prawn Sphagetti" style="z-index: -1;">
+            <img loading="lazy" decoding="async" width="150" height="150" src="./15_files/Young-Tomato-Prawn-Sphagetti-150x150.jpg" class="attachment-thumbnail size-thumbnail" alt="" srcset="https://marieta.in/wp-content/uploads/2024/04/Young-Tomato-Prawn-Sphagetti-150x150.jpg 150w, https://marieta.in/wp-content/uploads/2024/04/Young-Tomato-Prawn-Sphagetti-550x550.jpg 550w, https://marieta.in/wp-content/uploads/2024/04/Young-Tomato-Prawn-Sphagetti-1000x1000.jpg 1000w, https://marieta.in/wp-content/uploads/2024/04/Young-Tomato-Prawn-Sphagetti-300x300.jpg 300w, https://marieta.in/wp-content/uploads/2024/04/Young-Tomato-Prawn-Sphagetti-200x200.jpg 200w" sizes="(max-width: 150px) 100vw, 150px">            </a></div><div class="owl-item" style="width: 303.84px; margin-right: 0px;"><a href="https://marieta.in/wp-content/uploads/2024/04/Second-Date.jpg" data-rel="prettyPhoto[single_pretty_photo]" title="Second Date" style="z-index: -1;">
+            <img loading="lazy" decoding="async" width="150" height="150" src="./15_files/Second-Date-150x150.jpg" class="attachment-thumbnail size-thumbnail" alt="" srcset="https://marieta.in/wp-content/uploads/2024/04/Second-Date-150x150.jpg 150w, https://marieta.in/wp-content/uploads/2024/04/Second-Date-550x550.jpg 550w, https://marieta.in/wp-content/uploads/2024/04/Second-Date-1000x1000.jpg 1000w, https://marieta.in/wp-content/uploads/2024/04/Second-Date-300x300.jpg 300w, https://marieta.in/wp-content/uploads/2024/04/Second-Date-200x200.jpg 200w" sizes="(max-width: 150px) 100vw, 150px">            </a></div><div class="owl-item" style="width: 303.84px; margin-right: 0px;"><a href="https://marieta.in/wp-content/uploads/2024/04/Mushroom-and-Cream-Cheese-Kataifi.jpg" data-rel="prettyPhoto[single_pretty_photo]" title="Mushroom and Cream Cheese Kataifi" style="z-index: -1;">
+            <img loading="lazy" decoding="async" width="150" height="150" src="./15_files/Mushroom-and-Cream-Cheese-Kataifi-150x150.jpg" class="attachment-thumbnail size-thumbnail" alt="" srcset="https://marieta.in/wp-content/uploads/2024/04/Mushroom-and-Cream-Cheese-Kataifi-150x150.jpg 150w, https://marieta.in/wp-content/uploads/2024/04/Mushroom-and-Cream-Cheese-Kataifi-550x550.jpg 550w, https://marieta.in/wp-content/uploads/2024/04/Mushroom-and-Cream-Cheese-Kataifi-1000x1000.jpg 1000w, https://marieta.in/wp-content/uploads/2024/04/Mushroom-and-Cream-Cheese-Kataifi-300x300.jpg 300w, https://marieta.in/wp-content/uploads/2024/04/Mushroom-and-Cream-Cheese-Kataifi-200x200.jpg 200w" sizes="(max-width: 150px) 100vw, 150px">            </a></div><div class="owl-item" style="width: 303.84px; margin-right: 0px;"><a href="https://marieta.in/wp-content/uploads/2024/04/Mixed-Feelings.jpg" data-rel="prettyPhoto[single_pretty_photo]" title="Mixed Feelings" style="z-index: -1;">
+            <img loading="lazy" decoding="async" width="150" height="150" src="./15_files/Mixed-Feelings-150x150.jpg" class="attachment-thumbnail size-thumbnail" alt="" srcset="https://marieta.in/wp-content/uploads/2024/04/Mixed-Feelings-150x150.jpg 150w, https://marieta.in/wp-content/uploads/2024/04/Mixed-Feelings-550x550.jpg 550w, https://marieta.in/wp-content/uploads/2024/04/Mixed-Feelings-1000x1000.jpg 1000w, https://marieta.in/wp-content/uploads/2024/04/Mixed-Feelings-300x300.jpg 300w, https://marieta.in/wp-content/uploads/2024/04/Mixed-Feelings-200x200.jpg 200w" sizes="(max-width: 150px) 100vw, 150px">            </a></div><div class="owl-item" style="width: 303.84px; margin-right: 0px;"><a href="https://marieta.in/wp-content/uploads/2024/04/Los-Negroni.jpg" data-rel="prettyPhoto[single_pretty_photo]" title="Los Negroni" style="z-index: -1;">
+            <img loading="lazy" decoding="async" width="150" height="150" src="./15_files/Los-Negroni-150x150.jpg" class="attachment-thumbnail size-thumbnail" alt="" srcset="https://marieta.in/wp-content/uploads/2024/04/Los-Negroni-150x150.jpg 150w, https://marieta.in/wp-content/uploads/2024/04/Los-Negroni-550x550.jpg 550w, https://marieta.in/wp-content/uploads/2024/04/Los-Negroni-1000x1000.jpg 1000w, https://marieta.in/wp-content/uploads/2024/04/Los-Negroni-300x300.jpg 300w, https://marieta.in/wp-content/uploads/2024/04/Los-Negroni-200x200.jpg 200w" sizes="(max-width: 150px) 100vw, 150px">            </a></div><div class="owl-item" style="width: 303.84px; margin-right: 0px;"><a href="https://marieta.in/wp-content/uploads/2024/04/Interior.jpg" data-rel="prettyPhoto[single_pretty_photo]" title="Interior" style="z-index: -1;">
+            <img loading="lazy" decoding="async" width="150" height="150" src="./15_files/Interior-150x150.jpg" class="attachment-thumbnail size-thumbnail" alt="" srcset="https://marieta.in/wp-content/uploads/2024/04/Interior-150x150.jpg 150w, https://marieta.in/wp-content/uploads/2024/04/Interior-550x550.jpg 550w, https://marieta.in/wp-content/uploads/2024/04/Interior-1000x1000.jpg 1000w, https://marieta.in/wp-content/uploads/2024/04/Interior-300x300.jpg 300w, https://marieta.in/wp-content/uploads/2024/04/Interior-200x200.jpg 200w" sizes="(max-width: 150px) 100vw, 150px">            </a></div><div class="owl-item" style="width: 303.84px; margin-right: 0px;"><a href="https://marieta.in/wp-content/uploads/2024/04/Heat-Check-Picante.jpg" data-rel="prettyPhoto[single_pretty_photo]" title="Heat Check – Picante" style="z-index: -1;">
+            <img loading="lazy" decoding="async" width="150" height="150" src="./15_files/Heat-Check-Picante-150x150.jpg" class="attachment-thumbnail size-thumbnail" alt="" srcset="https://marieta.in/wp-content/uploads/2024/04/Heat-Check-Picante-150x150.jpg 150w, https://marieta.in/wp-content/uploads/2024/04/Heat-Check-Picante-550x550.jpg 550w, https://marieta.in/wp-content/uploads/2024/04/Heat-Check-Picante-1000x1000.jpg 1000w, https://marieta.in/wp-content/uploads/2024/04/Heat-Check-Picante-300x300.jpg 300w, https://marieta.in/wp-content/uploads/2024/04/Heat-Check-Picante-200x200.jpg 200w" sizes="(max-width: 150px) 100vw, 150px">            </a></div><div class="owl-item" style="width: 303.84px; margin-right: 0px;"><a href="https://marieta.in/wp-content/uploads/2024/04/Hand-of-God.jpg" data-rel="prettyPhoto[single_pretty_photo]" title="Hand of God" style="z-index: -1;">
+            <img loading="lazy" decoding="async" width="150" height="150" src="./15_files/Hand-of-God-150x150.jpg" class="attachment-thumbnail size-thumbnail" alt="" srcset="https://marieta.in/wp-content/uploads/2024/04/Hand-of-God-150x150.jpg 150w, https://marieta.in/wp-content/uploads/2024/04/Hand-of-God-550x550.jpg 550w, https://marieta.in/wp-content/uploads/2024/04/Hand-of-God-1000x1000.jpg 1000w, https://marieta.in/wp-content/uploads/2024/04/Hand-of-God-300x300.jpg 300w, https://marieta.in/wp-content/uploads/2024/04/Hand-of-God-200x200.jpg 200w" sizes="(max-width: 150px) 100vw, 150px">            </a></div><div class="owl-item" style="width: 303.84px; margin-right: 0px;"><a href="https://marieta.in/wp-content/uploads/2024/04/DSC00535.jpg" data-rel="prettyPhoto[single_pretty_photo]" title="DSC00535" style="z-index: -1;">
+            <img loading="lazy" decoding="async" width="150" height="150" src="./15_files/DSC00535-150x150.jpg" class="attachment-thumbnail size-thumbnail" alt="" srcset="https://marieta.in/wp-content/uploads/2024/04/DSC00535-150x150.jpg 150w, https://marieta.in/wp-content/uploads/2024/04/DSC00535-550x550.jpg 550w, https://marieta.in/wp-content/uploads/2024/04/DSC00535-1000x1000.jpg 1000w, https://marieta.in/wp-content/uploads/2024/04/DSC00535-300x300.jpg 300w, https://marieta.in/wp-content/uploads/2024/04/DSC00535-200x200.jpg 200w" sizes="(max-width: 150px) 100vw, 150px">            </a></div><div class="owl-item" style="width: 303.84px; margin-right: 0px;"><a href="https://marieta.in/wp-content/uploads/2024/04/Charred-bread-bomb.png" data-rel="prettyPhoto[single_pretty_photo]" title="Charred bread bomb" style="z-index: -1;">
+            <img loading="lazy" decoding="async" width="150" height="150" src="./15_files/Charred-bread-bomb-150x150.png" class="attachment-thumbnail size-thumbnail" alt="" srcset="https://marieta.in/wp-content/uploads/2024/04/Charred-bread-bomb-150x150.png 150w, https://marieta.in/wp-content/uploads/2024/04/Charred-bread-bomb-550x550.png 550w, https://marieta.in/wp-content/uploads/2024/04/Charred-bread-bomb-1000x1000.png 1000w, https://marieta.in/wp-content/uploads/2024/04/Charred-bread-bomb-300x300.png 300w, https://marieta.in/wp-content/uploads/2024/04/Charred-bread-bomb-200x200.png 200w" sizes="(max-width: 150px) 100vw, 150px">            </a></div><div class="owl-item" style="width: 303.84px; margin-right: 0px;"><a href="https://marieta.in/wp-content/uploads/2024/04/Berry-and-Mascarpone-French-Toast.jpg" data-rel="prettyPhoto[single_pretty_photo]" title="Berry and Mascarpone French Toast" style="z-index: -1;">
+            <img loading="lazy" decoding="async" width="150" height="150" src="./15_files/Berry-and-Mascarpone-French-Toast-150x150.jpg" class="attachment-thumbnail size-thumbnail" alt="" srcset="https://marieta.in/wp-content/uploads/2024/04/Berry-and-Mascarpone-French-Toast-150x150.jpg 150w, https://marieta.in/wp-content/uploads/2024/04/Berry-and-Mascarpone-French-Toast-550x550.jpg 550w, https://marieta.in/wp-content/uploads/2024/04/Berry-and-Mascarpone-French-Toast-1000x1000.jpg 1000w, https://marieta.in/wp-content/uploads/2024/04/Berry-and-Mascarpone-French-Toast-300x300.jpg 300w, https://marieta.in/wp-content/uploads/2024/04/Berry-and-Mascarpone-French-Toast-200x200.jpg 200w" sizes="(max-width: 150px) 100vw, 150px">            </a></div><div class="owl-item cloned" style="width: 303.84px; margin-right: 0px;"><a href="https://marieta.in/wp-content/uploads/2024/05/IMG-6.jpg" data-rel="prettyPhoto[single_pretty_photo]" title="IMG 6" style="z-index: -1;">
+            <img loading="lazy" decoding="async" width="150" height="150" src="./15_files/IMG-6-150x150.jpg" class="attachment-thumbnail size-thumbnail" alt="" srcset="https://marieta.in/wp-content/uploads/2024/05/IMG-6-150x150.jpg 150w, https://marieta.in/wp-content/uploads/2024/05/IMG-6-550x550.jpg 550w, https://marieta.in/wp-content/uploads/2024/05/IMG-6-300x300.jpg 300w, https://marieta.in/wp-content/uploads/2024/05/IMG-6-200x200.jpg 200w" sizes="(max-width: 150px) 100vw, 150px">            </a></div><div class="owl-item cloned" style="width: 303.84px; margin-right: 0px;"><a href="https://marieta.in/wp-content/uploads/2024/04/1.png" data-rel="prettyPhoto[single_pretty_photo]" title="1" style="z-index: -1;">
+            <img loading="lazy" decoding="async" width="150" height="150" src="./15_files/1-150x150.png" class="attachment-thumbnail size-thumbnail" alt="" srcset="https://marieta.in/wp-content/uploads/2024/04/1-150x150.png 150w, https://marieta.in/wp-content/uploads/2024/04/1-550x550.png 550w, https://marieta.in/wp-content/uploads/2024/04/1-1000x1000.png 1000w, https://marieta.in/wp-content/uploads/2024/04/1-300x300.png 300w, https://marieta.in/wp-content/uploads/2024/04/1-200x200.png 200w" sizes="(max-width: 150px) 100vw, 150px">            </a></div><div class="owl-item cloned" style="width: 303.84px; margin-right: 0px;"><a href="https://marieta.in/wp-content/uploads/2024/04/2.png" data-rel="prettyPhoto[single_pretty_photo]" title="2" style="z-index: -1;">
+            <img loading="lazy" decoding="async" width="150" height="150" src="./15_files/2-150x150.png" class="attachment-thumbnail size-thumbnail" alt="" srcset="https://marieta.in/wp-content/uploads/2024/04/2-150x150.png 150w, https://marieta.in/wp-content/uploads/2024/04/2-550x550.png 550w, https://marieta.in/wp-content/uploads/2024/04/2-1000x1000.png 1000w, https://marieta.in/wp-content/uploads/2024/04/2-300x300.png 300w, https://marieta.in/wp-content/uploads/2024/04/2-200x200.png 200w" sizes="(max-width: 150px) 100vw, 150px">            </a></div><div class="owl-item cloned" style="width: 303.84px; margin-right: 0px;"><a href="https://marieta.in/wp-content/uploads/2024/05/IMG-5.jpg" data-rel="prettyPhoto[single_pretty_photo]" title="IMG 5" style="z-index: -1;">
+            <img loading="lazy" decoding="async" width="150" height="150" src="./15_files/IMG-5-150x150.jpg" class="attachment-thumbnail size-thumbnail" alt="" srcset="https://marieta.in/wp-content/uploads/2024/05/IMG-5-150x150.jpg 150w, https://marieta.in/wp-content/uploads/2024/05/IMG-5-550x550.jpg 550w, https://marieta.in/wp-content/uploads/2024/05/IMG-5-300x300.jpg 300w, https://marieta.in/wp-content/uploads/2024/05/IMG-5-200x200.jpg 200w" sizes="(max-width: 150px) 100vw, 150px">            </a></div><div class="owl-item cloned" style="width: 303.84px; margin-right: 0px;"><a href="https://marieta.in/wp-content/uploads/2024/04/6.png" data-rel="prettyPhoto[single_pretty_photo]" title="6" style="z-index: -1;">
+            <img loading="lazy" decoding="async" width="150" height="150" src="./15_files/6-150x150.png" class="attachment-thumbnail size-thumbnail" alt="" srcset="https://marieta.in/wp-content/uploads/2024/04/6-150x150.png 150w, https://marieta.in/wp-content/uploads/2024/04/6-550x550.png 550w, https://marieta.in/wp-content/uploads/2024/04/6-1000x1000.png 1000w, https://marieta.in/wp-content/uploads/2024/04/6-300x300.png 300w, https://marieta.in/wp-content/uploads/2024/04/6-200x200.png 200w" sizes="(max-width: 150px) 100vw, 150px">            </a></div></div></div><div class="owl-controls"><div class="owl-nav"><div class="owl-prev" style=""><span class="eltd-prev-icon"><span class="arrow_carrot-left"></span></span></div><div class="owl-next" style=""><span class="eltd-next-icon"><span class="arrow_carrot-right"></span></span></div></div><div class="owl-dots" style="display: none;"></div></div></div>
+</div><div class="vc_empty_space" style="height: 32px"><span class="vc_empty_space_inner"></span></div></div></div></div></div></div><div class="vc_row wpb_row vc_row-fluid eltd-section vc_custom_1713416682674 eltd-content-aligment-left" style=""><div class="clearfix eltd-full-section-inner"><div class="wpb_column vc_column_container vc_col-sm-12"><div class="vc_column-inner"><div class="wpb_wrapper">
+	<div class="wpb_single_image wpb_content_element vc_align_right">
+		
+		<figure class="wpb_wrapper vc_figure">
+			<div class="vc_single_image-wrapper   vc_box_border_grey"><img loading="lazy" decoding="async" width="300" height="219" src="./15_files/With-love-Marieta-300x219.png" class="vc_single_image-img attachment-medium" alt="" title="With love Marieta" srcset="https://marieta.in/wp-content/uploads/2024/04/With-love-Marieta-300x219.png 300w, https://marieta.in/wp-content/uploads/2024/04/With-love-Marieta-1024x747.png 1024w, https://marieta.in/wp-content/uploads/2024/04/With-love-Marieta-768x560.png 768w, https://marieta.in/wp-content/uploads/2024/04/With-love-Marieta-600x438.png 600w, https://marieta.in/wp-content/uploads/2024/04/With-love-Marieta.png 1481w" sizes="(max-width: 300px) 100vw, 300px"></div>
+		</figure>
+	</div>
+</div></div></div></div></div>
+</section>							</div>
+</div>
+</div> <!-- close div.content_inner -->
+</div> <!-- close div.content -->
+
+<footer style="background-image: url();">
+	<div class="eltd-footer-inner clearfix">
+
+		<div class="eltd-footer-top-holder">
+	<div class="eltd-footer-top eltd-footer-top-aligment-center">
+		
+		<div class="eltd-container">
+			<div class="eltd-container-inner">
+
+		<div class="eltd-three-columns clearfix">
+	<div class="eltd-three-columns-inner clearfix">
+		<div class="eltd-column">
+			<div class="eltd-column-inner">
+				<div id="block-20" class="widget eltd-footer-column-1 widget_block"><figure class="wp-block-image size-full is-resized"><img loading="lazy" decoding="async" width="400" height="500" src="./15_files/M-logo22-1.png" alt="" class="wp-image-8451" style="width:110px;height:auto" srcset="https://marieta.in/wp-content/uploads/2024/04/M-logo22-1.png 400w, https://marieta.in/wp-content/uploads/2024/04/M-logo22-1-240x300.png 240w" sizes="(max-width: 400px) 100vw, 400px"></figure></div><div id="block-21" class="widget eltd-footer-column-1 widget_block"><p style="color:#b61f34; font-family: Montserrat; margin-top:-25px !important; font-size:14px;">GLOBAL DINING &amp; AGAVE FORWARD BAR</p></div>			</div>
+		</div>
+		<div class="eltd-column">
+			<div class="eltd-column-inner">
+				<div id="block-16" class="widget eltd-footer-column-2 widget_block"><h4 class="wp-block-heading" style="color:#FBE7C3; font-weight: 500;
+    font-size: 26px; font-family: Reem Kufi">OPENING &nbsp; HOURS</h4></div><div id="block-19" class="widget eltd-footer-column-2 widget_block"><p style="color:#FBE7C3; font-family: Montserrat; letter-spacing: 1px;">12 NOON – 1 AM</p><p style="color:#FBE7C3; font-family: Montserrat; letter-spacing: 1px;">MONDAY - SUNDAY<br><br></p></div>			</div>
+		</div>
+		<div class="eltd-column">
+			<div class="eltd-column-inner">
+				<div id="block-17" class="widget eltd-footer-column-3 widget_block"><h4 h4="" class="wp-block-heading" style="color:#FBE7C3; font-weight: 500;
+    font-size: 26px; font-family: Reem Kufi; padding-bottom:0px !important;">CONNECT &nbsp; WITH &nbsp;US</h4></div><div id="block-18" class="widget eltd-footer-column-3 widget_block"><ul style="color:#FBE7C3; font-family: Montserrat;padding-top:0px !important;">
+
+<li class="social-icon" style="color:#FBE7C3; font-family: Montserrat;padding-top:0px !important; letter-spacing: 1px;"><a class="ntips" title="Instagram" href="https://www.instagram.com/marietahorizon?igsh=bnUyYjgyOWV6djZu" target="_blank" rel="noopener noreferrer" style="color:#FBE7C3; font-family: Montserrat;"><br>
+<i class="fa fa-instagram" style="font-size: 20px; color:#FBE7C3;"></i>&nbsp;
+@marietaHORIZON </a></li>
+<li class="address-text" style="color:#FBE7C3; letter-spacing: 1px;"><i class="fa fa-map" style="margin-right:12px; letter-spacing: 1px;"></i>TWO HORIZON CENTER, GURUGRAM </li>
+<li class="contact-text" style="color:#FBE7C3"><i class="fa fa-phone-square" style="margin-right:12px;color:#FBE7C3;letter-spacing: 1px;"></i><a href="tel:+918800186953" style="color:#FBE7C3;"> +91 8800186953</a></li>
+</ul></div>			</div>
+		</div>
+	</div>
+</div>			</div>
+		</div>
+		</div>
+</div>
+<div class="eltd-footer-bottom-holder">
+	<div class="eltd-footer-bottom-holder-inner">
+				<div class="eltd-container">
+			<div class="eltd-container-inner">
+
+				<div class="eltd-column-inner">
+	<div id="text-8" class="widget eltd-footer-text widget_text">			<div class="textwidget"><p>Copyright © 2024 | Marieta</p>
+</div>
+		</div></div>			</div>
+		</div>
+		</div>
+</div>
+	</div>
+</footer>
+
+</div> <!-- close div.eltd-wrapper-inner  -->
+</div> <!-- close div.eltd-wrapper -->
+
+		<script>
+			window.RS_MODULES = window.RS_MODULES || {};
+			window.RS_MODULES.modules = window.RS_MODULES.modules || {};
+			window.RS_MODULES.waiting = window.RS_MODULES.waiting || [];
+			window.RS_MODULES.defered = true;
+			window.RS_MODULES.moduleWaiting = window.RS_MODULES.moduleWaiting || {};
+			window.RS_MODULES.type = 'compiled';
+		</script>
+		<script type="text/html" id="wpb-modifications"></script><link href="./15_files/css(1)" rel="stylesheet" property="stylesheet" media="all" type="text/css">
+
+	<script type="text/javascript">
+		(function () {
+			var c = document.body.className;
+			c = c.replace(/woocommerce-no-js/, 'woocommerce-js');
+			document.body.className = c;
+		})();
+	</script>
+	<script>
+		if(typeof revslider_showDoubleJqueryError === "undefined") {function revslider_showDoubleJqueryError(sliderID) {console.log("You have some jquery.js library include that comes after the Slider Revolution files js inclusion.");console.log("To fix this, you can:");console.log("1. Set 'Module General Options' -> 'Advanced' -> 'jQuery & OutPut Filters' -> 'Put JS to Body' to on");console.log("2. Find the double jQuery.js inclusion and remove it");return "Double Included jQuery Library";}}
+</script>
+<link rel="stylesheet" id="wc-blocks-style-css" href="./15_files/wc-blocks.css" type="text/css" media="all">
+<style id="core-block-supports-inline-css" type="text/css">
+/**
+ * Core styles: block-supports
+ */
+
+</style>
+<link rel="stylesheet" id="rs-plugin-settings-css" href="./15_files/rs6.css" type="text/css" media="all">
+<style id="rs-plugin-settings-inline-css" type="text/css">
+		#rev_slider_9_1_wrapper rs-loader.spinner3 div{background-color:#FFFFFF !important}
+</style>
+<script type="text/javascript" src="./15_files/index.js.download" id="swv-js"></script>
+<script type="text/javascript" id="contact-form-7-js-extra">
+/* <![CDATA[ */
+var wpcf7 = {"api":{"root":"https:\/\/marieta.in\/wp-json\/","namespace":"contact-form-7\/v1"}};
+/* ]]> */
+</script>
+<script type="text/javascript" src="./15_files/index(1).js.download" id="contact-form-7-js"></script>
+<script type="text/javascript" src="./15_files/rbtools.min.js.download" defer="" async="" id="tp-tools-js"></script>
+<script type="text/javascript" src="./15_files/rs6.min.js.download" defer="" async="" id="revmin-js"></script>
+<script type="text/javascript" src="./15_files/sourcebuster.js.download" id="sourcebuster-js-js"></script>
+<script type="text/javascript" id="wc-order-attribution-js-extra">
+/* <![CDATA[ */
+var wc_order_attribution = {"params":{"lifetime":1.0000000000000000818030539140313095458623138256371021270751953125e-5,"session":30,"ajaxurl":"https:\/\/marieta.in\/wp-admin\/admin-ajax.php","prefix":"wc_order_attribution_","allowTracking":true},"fields":{"source_type":"current.typ","referrer":"current_add.rf","utm_campaign":"current.cmp","utm_source":"current.src","utm_medium":"current.mdm","utm_content":"current.cnt","utm_id":"current.id","utm_term":"current.trm","session_entry":"current_add.ep","session_start_time":"current_add.fd","session_pages":"session.pgs","session_count":"udata.vst","user_agent":"udata.uag"}};
+/* ]]> */
+</script>
+<script type="text/javascript" src="./15_files/order-attribution.js.download" id="wc-order-attribution-js"></script>
+<script type="text/javascript" src="./15_files/core.js.download" id="jquery-ui-core-js"></script>
+<script type="text/javascript" src="./15_files/tabs.js.download" id="jquery-ui-tabs-js"></script>
+<script type="text/javascript" src="./15_files/accordion.js.download" id="jquery-ui-accordion-js"></script>
+<script type="text/javascript" src="./15_files/datepicker.js.download" id="jquery-ui-datepicker-js"></script>
+<script type="text/javascript" id="jquery-ui-datepicker-js-after">
+/* <![CDATA[ */
+jQuery(function(jQuery){jQuery.datepicker.setDefaults({"closeText":"Close","currentText":"Today","monthNames":["January","February","March","April","May","June","July","August","September","October","November","December"],"monthNamesShort":["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"],"nextText":"Next","prevText":"Previous","dayNames":["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"],"dayNamesShort":["Sun","Mon","Tue","Wed","Thu","Fri","Sat"],"dayNamesMin":["S","M","T","W","T","F","S"],"dateFormat":"MM d, yy","firstDay":1,"isRTL":false});});
+/* ]]> */
+</script>
+<script type="text/javascript" id="mediaelement-core-js-before">
+/* <![CDATA[ */
+var mejsL10n = {"language":"en","strings":{"mejs.download-file":"Download File","mejs.install-flash":"You are using a browser that does not have Flash player enabled or installed. Please turn on your Flash player plugin or download the latest version from https:\/\/get.adobe.com\/flashplayer\/","mejs.fullscreen":"Fullscreen","mejs.play":"Play","mejs.pause":"Pause","mejs.time-slider":"Time Slider","mejs.time-help-text":"Use Left\/Right Arrow keys to advance one second, Up\/Down arrows to advance ten seconds.","mejs.live-broadcast":"Live Broadcast","mejs.volume-help-text":"Use Up\/Down Arrow keys to increase or decrease volume.","mejs.unmute":"Unmute","mejs.mute":"Mute","mejs.volume-slider":"Volume Slider","mejs.video-player":"Video Player","mejs.audio-player":"Audio Player","mejs.captions-subtitles":"Captions\/Subtitles","mejs.captions-chapters":"Chapters","mejs.none":"None","mejs.afrikaans":"Afrikaans","mejs.albanian":"Albanian","mejs.arabic":"Arabic","mejs.belarusian":"Belarusian","mejs.bulgarian":"Bulgarian","mejs.catalan":"Catalan","mejs.chinese":"Chinese","mejs.chinese-simplified":"Chinese (Simplified)","mejs.chinese-traditional":"Chinese (Traditional)","mejs.croatian":"Croatian","mejs.czech":"Czech","mejs.danish":"Danish","mejs.dutch":"Dutch","mejs.english":"English","mejs.estonian":"Estonian","mejs.filipino":"Filipino","mejs.finnish":"Finnish","mejs.french":"French","mejs.galician":"Galician","mejs.german":"German","mejs.greek":"Greek","mejs.haitian-creole":"Haitian Creole","mejs.hebrew":"Hebrew","mejs.hindi":"Hindi","mejs.hungarian":"Hungarian","mejs.icelandic":"Icelandic","mejs.indonesian":"Indonesian","mejs.irish":"Irish","mejs.italian":"Italian","mejs.japanese":"Japanese","mejs.korean":"Korean","mejs.latvian":"Latvian","mejs.lithuanian":"Lithuanian","mejs.macedonian":"Macedonian","mejs.malay":"Malay","mejs.maltese":"Maltese","mejs.norwegian":"Norwegian","mejs.persian":"Persian","mejs.polish":"Polish","mejs.portuguese":"Portuguese","mejs.romanian":"Romanian","mejs.russian":"Russian","mejs.serbian":"Serbian","mejs.slovak":"Slovak","mejs.slovenian":"Slovenian","mejs.spanish":"Spanish","mejs.swahili":"Swahili","mejs.swedish":"Swedish","mejs.tagalog":"Tagalog","mejs.thai":"Thai","mejs.turkish":"Turkish","mejs.ukrainian":"Ukrainian","mejs.vietnamese":"Vietnamese","mejs.welsh":"Welsh","mejs.yiddish":"Yiddish"}};
+/* ]]> */
+</script>
+<script type="text/javascript" src="./15_files/mediaelement-and-player.js.download" id="mediaelement-core-js"></script>
+<script type="text/javascript" src="./15_files/mediaelement-migrate.js.download" id="mediaelement-migrate-js"></script>
+<script type="text/javascript" id="mediaelement-js-extra">
+/* <![CDATA[ */
+var _wpmejsSettings = {"pluginPath":"\/wp-includes\/js\/mediaelement\/","classPrefix":"mejs-","stretching":"responsive","audioShortcodeLibrary":"mediaelement","videoShortcodeLibrary":"mediaelement"};
+/* ]]> */
+</script>
+<script type="text/javascript" src="./15_files/wp-mediaelement.js.download" id="wp-mediaelement-js"></script>
+<script type="text/javascript" src="./15_files/Chart.min.js.download" id="Chart.min.js-js"></script>
+<script type="text/javascript" src="./15_files/ScrollToPlugin.min.js.download" id="ScrollToPlugin.min.js-js"></script>
+<script type="text/javascript" src="./15_files/TimelineLite.min.js.download" id="TimelineLite.min.js-js"></script>
+<script type="text/javascript" src="./15_files/TweenLite.min.js.download" id="TweenLite.min.js-js"></script>
+<script type="text/javascript" src="./15_files/absolute-counter.js.download" id="absolute-counter.js-js"></script>
+<script type="text/javascript" src="./15_files/bootstrapCarousel.js.download" id="bootstrapCarousel.js-js"></script>
+<script type="text/javascript" src="./15_files/counter.js.download" id="counter.js-js"></script>
+<script type="text/javascript" src="./15_files/easypiechart.js.download" id="easypiechart.js-js"></script>
+<script type="text/javascript" src="./15_files/fluidvids.min.js.download" id="fluidvids.min.js-js"></script>
+<script type="text/javascript" src="./15_files/jquery.appear.js.download" id="jquery.appear.js-js"></script>
+<script type="text/javascript" src="./15_files/jquery.easing.1.3.js.download" id="jquery.easing.1.3.js-js"></script>
+<script type="text/javascript" src="./15_files/jquery.hoverIntent.min.js.download" id="jquery.hoverIntent.min.js-js"></script>
+<script type="text/javascript" src="./15_files/jquery.justifiedGallery.min.js.download" id="jquery.justifiedGallery.min.js-js"></script>
+<script type="text/javascript" src="./15_files/jquery.mixitup.min.js.download" id="jquery.mixitup.min.js-js"></script>
+<script type="text/javascript" src="./15_files/jquery.nicescroll.min.js.download" id="jquery.nicescroll.min.js-js"></script>
+<script type="text/javascript" src="./15_files/jquery.plugin.js.download" id="jquery.plugin.js-js"></script>
+<script type="text/javascript" src="./15_files/jquery.prettyPhoto.js.download" id="jquery.prettyPhoto.js-js"></script>
+<script type="text/javascript" src="./15_files/jquery.touchSwipe.min.js.download" id="jquery.touchSwipe.min.js-js"></script>
+<script type="text/javascript" src="./15_files/jquery.waitforimages.js.download" id="jquery.waitforimages.js-js"></script>
+<script type="text/javascript" src="./15_files/jquery.waypoints.min.js.download" id="jquery.waypoints.min.js-js"></script>
+<script type="text/javascript" src="./15_files/jquery.zcountdown.min.js.download" id="jquery.zcountdown.min.js-js"></script>
+<script type="text/javascript" src="./15_files/modernizr.min.js.download" id="modernizr.min.js-js"></script>
+<script type="text/javascript" src="./15_files/owl.carousel.min.js.download" id="owl.carousel.min.js-js"></script>
+<script type="text/javascript" src="./15_files/parallax.min.js.download" id="parallax.min.js-js"></script>
+<script type="text/javascript" src="./15_files/select2.min.js.download" id="select2.min.js-js"></script>
+<script type="text/javascript" src="./15_files/skrollr.js.download" id="skrollr.js-js"></script>
+<script type="text/javascript" src="./15_files/slick.min.js.download" id="slick.min.js-js"></script>
+<script type="text/javascript" src="./15_files/isotope.pkgd.min.js.download" id="isotope-js"></script>
+<script type="text/javascript" src="./15_files/smoothPageScroll.js.download" id="savory-elated-smooth-page-scroll-js"></script>
+<script type="text/javascript" id="savory-elated-modules-js-extra">
+/* <![CDATA[ */
+var eltdGlobalVars = {"vars":{"eltdAddForAdminBar":0,"eltdElementAppearAmount":-150,"eltdFinishedMessage":"No more posts","eltdMessage":"Loading new posts...","eltdAddingToCart":"Adding to Cart...","eltdTopBarHeight":0,"eltdStickyHeaderHeight":0,"eltdStickyHeaderTransparencyHeight":60,"eltdStickyScrollAmount":0,"eltdLogoAreaHeight":120,"eltdMenuAreaHeight":170,"eltdMobileHeaderHeight":100}};
+var eltdPerPageVars = {"vars":{"eltdStickyScrollAmount":0,"eltdHeaderTransparencyHeight":0}};
+/* ]]> */
+</script>
+<script type="text/javascript" src="./15_files/modules.min.js.download" id="savory-elated-modules-js"></script>
+<script type="text/javascript" src="./15_files/blog.min.js.download" id="savory-elated-blog-js"></script>
+<script type="text/javascript" id="savory-elated-like-js-extra">
+/* <![CDATA[ */
+var eltdLike = {"ajaxurl":"https:\/\/marieta.in\/wp-admin\/admin-ajax.php"};
+/* ]]> */
+</script>
+<script type="text/javascript" src="./15_files/like.min.js.download" id="savory-elated-like-js"></script>
+<script type="text/javascript" src="./15_files/js_composer_front.min.js.download" id="wpb_composer_front_js-js"></script>
+<script id="rs-initialisation-scripts">
+		var	tpj = jQuery;
+
+		var	revapi9;
+
+		if(window.RS_MODULES === undefined) window.RS_MODULES = {};
+		if(RS_MODULES.modules === undefined) RS_MODULES.modules = {};
+		RS_MODULES.modules["revslider91"] = {once: RS_MODULES.modules["revslider91"]!==undefined ? RS_MODULES.modules["revslider91"].once : undefined, init:function() {
+			window.revapi9 = window.revapi9===undefined || window.revapi9===null || window.revapi9.length===0  ? document.getElementById("rev_slider_9_1") : window.revapi9;
+			if(window.revapi9 === null || window.revapi9 === undefined || window.revapi9.length==0) { window.revapi9initTry = window.revapi9initTry ===undefined ? 0 : window.revapi9initTry+1; if (window.revapi9initTry<20) requestAnimationFrame(function() {RS_MODULES.modules["revslider91"].init()}); return;}
+			window.revapi9 = jQuery(window.revapi9);
+			if(window.revapi9.revolution==undefined){ revslider_showDoubleJqueryError("rev_slider_9_1"); return;}
+			revapi9.revolutionInit({
+					revapi:"revapi9",
+					sliderType:"hero",
+					DPR:"dpr",
+					sliderLayout:"fullscreen",
+					visibilityLevels:"1240,1024,778,480",
+					gridwidth:"1200,1000,778,480",
+					gridheight:"1100,768,960,720",
+					lazyType:"smart",
+					spinner:"spinner3",
+					perspective:600,
+					perspectiveType:"local",
+					editorheight:"1099.99,768,960,720",
+					responsiveLevels:"1240,1024,778,480",
+					progressBar:{disableProgressBar:true},
+					navigation: {
+						onHoverStop:false
+					},
+					viewPort: {
+						global:true,
+						globalDist:"-200px",
+						enable:false,
+						visible_area:"20%"
+					},
+					fallbacks: {
+						simplifyAll:true,
+						allowHTML5AutoPlayOnAndroid:true
+					},
+			});
+			
+		}} // End of RevInitScript
+
+		if (window.RS_MODULES.checkMinimal!==undefined) { window.RS_MODULES.checkMinimal();};
+	</script>
+
+<div id="ascrail2000" class="nicescroll-rails nicescroll-rails-vr" style="width: 0px; z-index: 9999; cursor: default; position: fixed; top: 0px; left: 1581.2px; height: 642.4px; opacity: 1; touch-action: none; display: none;"><div class="nicescroll-cursors" style="position: relative; top: 0px; float: right; width: 0px; height: 0px; background-color: transparent; border: 0px; background-clip: padding-box; border-radius: 0px; touch-action: none;"></div></div></body></html>
