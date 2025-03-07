@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const axiosInstance = axios.create({
-  baseURL: "https://marieta-express-backend-1.onrender.com",
+  baseURL: "https://marieta-express-backend-25c6.onrender.com",
   headers: {
     "Content-Type": "application/json",
   },
