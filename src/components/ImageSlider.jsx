@@ -4,11 +4,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 const images = [
-  "/png/01.png", "/png/02.png", "/png/03.png", "/png/04.png", "/png/05.png",
-  "/png/06.png", "/png/07.png", "/png/08.png", "/png/09.jpg", "/png/10.png",
-  "/png/11.jpg", "/png/12.jpg", "/png/13.jpg", "/png/14.jpg", "/png/16.jpg",
-  "/png/17.jpg", "/png/18.jpg", "/png/19.jpg", "/png/20.jpg",
-  "/png/21.jpg", "/png/22.jpg"
+  "/png/001.png", "/png/002.jpg", "/png/003.jpg", "/png/004.jpg", "/png/005.jpg",
+  "/png/006.jpg", "/png/007.jpg", "/png/008.jpg", "/png/009.jpg"
 ];
 
 const ImageSlider = () => {
@@ -73,7 +70,11 @@ const ImageSlider = () => {
               className="min-w-[20%] px-2 flex justify-center items-center"
               style={{ flex: `0 0 ${100 / slidesToShow.current}%` }}
             >
-              <img src={image} alt={`Slide ${i + 1}`} className="shadow-md object-cover w-full h-auto" />
+              <img
+                src={image}
+                alt={`Slide ${i + 1}`}
+                className="shadow-md object-cover w-[450px] h-[450px]"
+              />
             </div>
           ))}
         </div>
