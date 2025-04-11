@@ -168,7 +168,7 @@ const Navbar = () => {
                     Food
                   </Link>
                   <Link
-                    to={`/pdf/bar`}
+                    to={`/pdf/drinks`}
                     className="block text-white hover:text-gray-50 transition-colors text-left"
                   >
                     Bar
