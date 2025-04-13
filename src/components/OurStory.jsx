@@ -2,7 +2,7 @@ import React from 'react';
 
 const OurStory = () => {
   return (
-    <div className="bg-[#f9f6f0] px-8 py-16 flex flex-col justify-center items-center">
+    <div className="bg-[#f9f6f0] px-8 py-16 flex flex-col justify-center items-center font-montserrat"> 
       <div className="text-center mb-12">
         <img 
           src="/png/OurStory.png" 
@@ -24,7 +24,7 @@ const OurStory = () => {
             className=" shadow-md mx-auto"
             />
             <p className="text-base font-semibold text-[#2b593e] mt-2" style={{ fontFamily: "'Open Sans', sans-serif" }}>FOOD MENU</p>
-            <hr className="w-[50%] mx-auto border-1 mb-4 border-[#2b593e]" />
+            {/* <hr className="w-[50%] mx-auto border-1 mb-4 border-[#2b593e]" /> */}
             <p className="text-md text-[#2b593e] max-w-[80%] mx-auto mt-1">
             Marièta invites you on a culinary journey that transcends borders with a menu that features 
             a vast selection of globally inspired dishes.
@@ -38,7 +38,7 @@ const OurStory = () => {
             className="shadow-md mx-auto"
             />
             <p className="text-base font-semibold text-[#2b593e] mt-2" style={{ fontFamily: "'Open Sans', sans-serif" }}>COCKTAIL MENU</p>
-            <hr className="w-[50%] mx-auto border-1 mb-4 border-[#2b593e]" />
+            {/* <hr className="w-[50%] mx-auto border-1 mb-4 border-[#2b593e]" /> */}
             <p className="text-md text-[#2b593e] max-w-[80%] mx-auto mt-1">
             Agave forward mixology offering a selection of crafted tequila and mezcal cocktails and 
             signature concoctions that celebrate the Latino way of life.
